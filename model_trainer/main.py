@@ -1,11 +1,15 @@
-import word2vec
-import fasttxt
+import logging
+
 import numpy as np
 from gensim.matutils import unitvec
 
+import fasttxt
+import word2vec
+
+log = logging.getLogger(__name__)
+
 
 def test(model, positive, negative, test_words):
-
     mean = []
     for pos_word in positive:
         mean.append(1.0 * np.array(model[pos_word]))
@@ -20,35 +24,33 @@ def test(model, positive, negative, test_words):
     for word in test_words:
 
         if word not in positive + negative:
-
             test_word = unitvec(np.array(model[word]))
 
             # Cosine Similarity
             scores[word] = np.dot(test_word, mean)
 
-    print(sorted(scores, key=scores.get, reverse=True)[:1])
+    log.info(sorted(scores, key=scores.get, reverse=True)[:1])
 
 
 TRAIN = False
 
 if TRAIN:
-    # print("Training Word2vec")
+    # log.info("Training Word2vec")
     # word2vec.train()
 
-    print("Training Fasttext")
+    log.info("Training Fasttext")
     fasttxt.train()
-
 
 positive_words = ["מלכה", "גבר"]
 
 negative_words = ["מלך"]
 
 # Test Word2vec
-print("Testing Word2vec")
+log.info("Testing Word2vec")
 model = word2vec.getModel()
 test(model, positive_words, negative_words, model.vocab)
 
 # # Test Fasttext
-# print("Testing Fasttext")
+# log.info("Testing Fasttext")
 # model = fasttxt.getModel()
 # test(model, positive_words, negative_words, model.words)

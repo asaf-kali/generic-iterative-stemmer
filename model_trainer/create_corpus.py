@@ -1,10 +1,14 @@
+import logging
+
 from gensim.corpora import WikiCorpus
 
 from model_trainer.config import get_data
 
+log = logging.getLogger(__name__)
+
 
 def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
-    print("Creating wiki corpus")
+    log.info("Creating wiki corpus")
     article_count = 0
     with open(output_file_path, "w") as corpus_file:
         # lemmatize=False,
@@ -15,8 +19,8 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
             corpus_file.write(f"{article_encoded}\n")
             article_count += 1
             if article_count % 1000 == 0:
-                print(f"Saved {article_count} articles")
-    print(f"Finished - Saved {article_count} articles")
+                log.info(f"Saved {article_count} articles")
+    log.info(f"Finished - Saved {article_count} articles")
 
 
 if __name__ == '__main__':
