@@ -1,9 +1,6 @@
-import os
-
 from gensim.corpora import WikiCorpus
 
-WIKI_ARTICLES_FILE_NAME = os.getenv("WIKI_ARTICLES_FILE_NAME", "hewiki-latest-pages-articles.xml.bz2")
-OUTPUT_CORPUS_FILE_NAME = os.getenv("OUTPUT_CORPUS_FILE_NAME", "wiki-he.txt")
+from model_trainer.config import get_data
 
 
 def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
@@ -23,4 +20,6 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
 
 
 if __name__ == '__main__':
-    generate_wiki_corpus_file(WIKI_ARTICLES_FILE_NAME, OUTPUT_CORPUS_FILE_NAME)
+    articles = get_data("wiki-he", "hewiki-latest-pages-articles.xml.bz2")
+    out = get_data("wiki-he", "corpus.txt")
+    generate_wiki_corpus_file(articles, out)
