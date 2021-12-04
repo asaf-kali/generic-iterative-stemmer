@@ -2,7 +2,7 @@ import logging
 
 import fasttext
 
-from model_trainer.config import get_data
+from model_trainer.config import get_path
 from utils.logging import measure_time
 
 log = logging.getLogger(__name__)
@@ -20,6 +20,6 @@ def get_model(model_path: str = "wiki-he.fasttext.model.bin"):
 
 
 if __name__ == '__main__':
-    corpus = get_data("small", "corpus.txt")
-    output = get_data("small", "wiki-he.fasttext.model")
+    corpus = get_path("small", "corpus.txt")
+    output = get_path("small", "wiki-he.fasttext.model")
     train(corpus, output)

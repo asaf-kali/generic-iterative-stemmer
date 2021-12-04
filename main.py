@@ -5,7 +5,7 @@ from gensim.matutils import unitvec
 
 from model_trainer import fast_text
 from model_trainer import word2vec
-from model_trainer.config import get_data
+from model_trainer.config import get_path
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ negative_words = ["מלך"]
 # Test Word2vec
 log.info("Testing Word2vec")
 
-kv_path = get_data("wiki-he", "wiki-he.kv")
+kv_path = get_path("wiki-he", "wiki-he.kv")
 model = word2vec.load_vectors_from_kv(kv_path)
 
 # path = get_data("wiki-he", "sg.model")

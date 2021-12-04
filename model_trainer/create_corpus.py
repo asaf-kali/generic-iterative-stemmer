@@ -2,7 +2,7 @@ import logging
 
 from gensim.corpora import WikiCorpus
 
-from model_trainer.config import get_data
+from model_trainer.config import get_path
 from utils.logging import measure_time
 
 log = logging.getLogger(__name__)
@@ -24,6 +24,6 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
 
 
 if __name__ == "__main__":
-    articles = get_data("wiki-he", "hewiki-latest-pages-articles.xml.bz2")
-    out = get_data("wiki-he", "corpus.txt")
+    articles = get_path("wiki-he", "hewiki-latest-pages-articles.xml.bz2")
+    out = get_path("wiki-he", "corpus.txt")
     generate_wiki_corpus_file(articles, out)

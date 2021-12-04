@@ -4,7 +4,7 @@ import multiprocessing
 from gensim.models import Word2Vec, KeyedVectors
 from gensim.models.word2vec import LineSentence
 
-from model_trainer.config import get_data
+from model_trainer.config import get_path
 from utils.logging import measure_time
 
 log = logging.getLogger(__name__)
@@ -42,6 +42,7 @@ def load_model(model_path: str) -> Word2Vec:
 
 
 if __name__ == '__main__':
-    corpus = get_data("wiki-he", "corpus.txt")
-    output = get_data("wiki-he", "sg")
-    train(corpus, output)
+    corpus_name = "small"
+    corpus_file = get_path(corpus_name, "corpus.txt")
+    output_file = get_path(corpus_name, "sg")
+    train(corpus_file, output_file)
