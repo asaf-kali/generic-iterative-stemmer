@@ -1,7 +1,7 @@
 import logging
 import multiprocessing
 
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, KeyedVectors
 from gensim.models.word2vec import LineSentence
 
 from model_trainer.config import get_data
@@ -21,22 +21,27 @@ def train(corpus_path: str, output_model_path: str):
         workers=multiprocessing.cpu_count(),
     )
     model.build_vocab(corpus_iterable=sentences)
-    model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=1)
+    model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=5)
+    log.debug("Training done, saving model...")
+    model_file_path = f"{output_model_path}.model"
+    kv_file_path = f"{output_model_path}.kv"
+    model.save(model_file_path)
+    model.wv.save(kv_file_path)
 
-    # trim unneeded model memory = use (much) less RAM
-    # model.init_sims(replace=True)
-    model.save(output_model_path)
+
+def load_vectors_from_kv(kv_path: str) -> KeyedVectors:
+    model: KeyedVectors = KeyedVectors.load(kv_path)  # type: ignore
+    log.info("Vectors loaded")
+    return model
 
 
-def get_model(model_path: str):
+def load_model(model_path: str) -> Word2Vec:
     model = Word2Vec.load(model_path)
-    vectors = model.wv
-    # model = KeyedVectors.load_word2vec_format(model_name)
     log.info("Model loaded")
-    return vectors
+    return model
 
 
 if __name__ == '__main__':
     corpus = get_data("wiki-he", "corpus.txt")
-    output = get_data("wiki-he", "wiki-he.word2vec.sg.model")
+    output = get_data("wiki-he", "sg")
     train(corpus, output)
