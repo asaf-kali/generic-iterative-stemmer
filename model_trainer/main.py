@@ -3,8 +3,8 @@ import logging
 import numpy as np
 from gensim.matutils import unitvec
 
-import fasttxt
 import word2vec
+from model_trainer import fast_text
 
 log = logging.getLogger(__name__)
 
@@ -35,11 +35,12 @@ def test(model, positive, negative, test_words):
 TRAIN = False
 
 if TRAIN:
+    pass
     # log.info("Training Word2vec")
     # word2vec.train()
-
-    log.info("Training Fasttext")
-    fasttxt.train()
+    #
+    # log.info("Training Fasttext")
+    # fast_text.train()
 
 positive_words = ["מלכה", "גבר"]
 
@@ -47,10 +48,10 @@ negative_words = ["מלך"]
 
 # Test Word2vec
 log.info("Testing Word2vec")
-model = word2vec.getModel()
+model = word2vec.get_model()
 test(model, positive_words, negative_words, model.vocab)
 
-# # Test Fasttext
-# log.info("Testing Fasttext")
-# model = fasttxt.getModel()
-# test(model, positive_words, negative_words, model.words)
+# Test Fasttext
+log.info("Testing Fasttext")
+model = fast_text.get_model()
+test(model, positive_words, negative_words, model.words)

@@ -23,7 +23,7 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
     log.info(f"Finished - Saved {article_count} articles")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     articles = get_data("wiki-he", "hewiki-latest-pages-articles.xml.bz2")
     out = get_data("wiki-he", "corpus.txt")
     generate_wiki_corpus_file(articles, out)

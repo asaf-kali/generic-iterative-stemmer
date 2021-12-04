@@ -24,7 +24,9 @@ LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "simple": {"format": "[%(name)s:%(lineno)s] %(message)s"},
+        "simple": {
+            "format": "[%(asctime)s] %(message)s [%(name)s]",
+            "datefmt": "%H:%M:%S", },
         "debug": {
             "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
                       "[%(threadName)s] [%(name)s:%(lineno)s]",
@@ -51,7 +53,7 @@ LOGGING_CONFIG = {
     },
     "root": {"handlers": ["console_out", "console_err"], "level": "DEBUG"},
     "loggers": {
-        "gensim": {"level": "WARN"},
+        "gensim": {"level": "INFO"},
         "smart_open": {"level": "WARN"}
     },
 }

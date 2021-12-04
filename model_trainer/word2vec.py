@@ -17,7 +17,7 @@ def train(corpus_path: str, output_model_path: str):
         sg=1,  # 0=CBOW , 1=SkipGram
         vector_size=100,
         window=5,
-        min_count=1,  # was 5
+        min_count=5,
         workers=multiprocessing.cpu_count(),
     )
     model.build_vocab(corpus_iterable=sentences)
@@ -28,13 +28,15 @@ def train(corpus_path: str, output_model_path: str):
     model.save(output_model_path)
 
 
-def getModel(model_name="wiki-he.word2vec.model"):
-    model = Word2Vec.load(model_name)
+def get_model(model_path: str):
+    model = Word2Vec.load(model_path)
+    vectors = model.wv
     # model = KeyedVectors.load_word2vec_format(model_name)
-    return model
+    log.info("Model loaded")
+    return vectors
 
 
 if __name__ == '__main__':
-    corpus = get_data("small", "corpus.txt")
-    output = get_data("small", "small.word2vec.model")
+    corpus = get_data("wiki-he", "corpus.txt")
+    output = get_data("wiki-he", "wiki-he.word2vec.sg.model")
     train(corpus, output)
