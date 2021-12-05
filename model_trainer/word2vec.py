@@ -1,7 +1,7 @@
 import logging
 import multiprocessing
 
-from gensim.models import Word2Vec, KeyedVectors
+from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 
 from model_trainer.config import get_path
@@ -11,13 +11,21 @@ log = logging.getLogger(__name__)
 
 
 @measure_time
-def train(corpus_path: str, output_model_path: str):
+def train(
+    corpus_path: str,
+    output_model_path: str,
+    skip_gram: bool = False,
+    vector_size: int = 100,
+    window: int = 5,
+    min_count: int = 5,
+):
     sentences = LineSentence(corpus_path)
+    sg = 1 if skip_gram else 0
     model = Word2Vec(
-        sg=1,  # 0=CBOW , 1=SkipGram
-        vector_size=100,
-        window=5,
-        min_count=5,
+        sg=sg,  # 0=CBOW , 1=SkipGram
+        vector_size=vector_size,
+        window=window,
+        min_count=min_count,
         workers=multiprocessing.cpu_count(),
     )
     model.build_vocab(corpus_iterable=sentences)
@@ -29,20 +37,8 @@ def train(corpus_path: str, output_model_path: str):
     model.wv.save(kv_file_path)
 
 
-def load_vectors_from_kv(kv_path: str) -> KeyedVectors:
-    model: KeyedVectors = KeyedVectors.load(kv_path)  # type: ignore
-    log.info("Vectors loaded")
-    return model
-
-
-def load_model(model_path: str) -> Word2Vec:
-    model = Word2Vec.load(model_path)
-    log.info("Model loaded")
-    return model
-
-
-if __name__ == '__main__':
-    corpus_name = "small"
+if __name__ == "__main__":
+    corpus_name = "wiki-he"
     corpus_file = get_path(corpus_name, "corpus.txt")
-    output_file = get_path(corpus_name, "sg")
+    output_file = get_path(corpus_name, "cbow")
     train(corpus_file, output_file)
