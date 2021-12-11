@@ -12,14 +12,22 @@ log = logging.getLogger(__name__)
 
 HEBREW_PATTERN = re.compile(r"[\u0590-\u05FF \-']+")
 
+HEBREW_SUFFIX_LETTERS = ("ן", "ם", "ץ", "ף", "ך")
+
 
 def _is_only_hebrew(token: str) -> bool:
     return HEBREW_PATTERN.fullmatch(token) is not None
 
 
+def _replace_suffix_letter(token: str) -> str:
+    if not token.endswith(HEBREW_SUFFIX_LETTERS):
+        return token
+    return token[:-1] + chr(ord(token[-1]) + 1)
+
+
 def hebrew_tokenizer(content: str, token_min_len: int, token_max_len: int, lower: bool) -> List[str]:
     tokens = gensim_tokenizer(content, token_min_len, token_max_len, lower)
-    hebrew_tokens = [token for token in tokens if _is_only_hebrew(token)]
+    hebrew_tokens = [_replace_suffix_letter(token) for token in tokens if _is_only_hebrew(token)]
     return hebrew_tokens
 
 
@@ -40,5 +48,5 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
 
 if __name__ == "__main__":
     articles = get_path("hewiki-latest-pages-articles.xml.bz2")
-    out = get_path("wiki-he-filter", "corpus2.txt")
+    out = get_path("wiki-he-filtered2", "corpus.txt")
     generate_wiki_corpus_file(articles, out)

@@ -35,6 +35,7 @@ def train(
     kv_file_path = f"{output_model_path}.kv"
     model.save(model_file_path)
     model.wv.save(kv_file_path)
+    return model
 
 
 if __name__ == "__main__":

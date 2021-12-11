@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 def train(corpus_path: str, output_model_path: str, algorithm: str = "cbow"):
     model = ft.train_unsupervised(input=corpus_path, model=algorithm)
     model.save_model(output_model_path)
+    return model
 
 
 if __name__ == "__main__":
