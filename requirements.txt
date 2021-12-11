@@ -3,3 +3,5 @@ fasttext
 jupyter
 pandas
 matplotlib
+tqdm
+pytest
