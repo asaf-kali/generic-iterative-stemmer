@@ -1,7 +1,12 @@
-gensim
-fasttext
-jupyter
+# Base
+numpy
 pandas
 matplotlib
+
+# NLP
+gensim
+fasttext
+
+# Working
+jupyter
 tqdm
-pytest

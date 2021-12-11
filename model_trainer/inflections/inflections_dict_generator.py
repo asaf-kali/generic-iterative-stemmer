@@ -34,7 +34,7 @@ class InflectionsDictGenerator:
         if words is None:
             words = self.model.key_to_index.keys()
         model_inflections = {}
-        log.info("Generating inflections...")
+        log.info("Generating inflections...2")
         for word in tqdm(words):
             word_inflections = self.generate_word_inflections(word=word)
             model_inflections.update(word_inflections)
