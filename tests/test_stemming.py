@@ -1,8 +1,16 @@
-from model_trainer.inflections import reduce_inflections_dict
+from model_trainer.stemming import reduce_stem_dict
 
 
-def test_reduce_inflections():
-    inflections = {
+def test_reduce_empty_stem_dict():
+    assert reduce_stem_dict({}) == {}
+
+
+def test_reduce_simple_stem_dict():
+    assert reduce_stem_dict({"x": "y"}) == {"x": "y"}
+
+
+def test_reduce_complex_stem_dict():
+    stem_dict = {
         "a": "x",
         "x": "y",
         "b": "x",
@@ -20,5 +28,5 @@ def test_reduce_inflections():
         "y": "z",
         "א": "ב",
     }
-    reduced = reduce_inflections_dict(inflections)
+    reduced = reduce_stem_dict(stem_dict)
     assert reduced == expected
