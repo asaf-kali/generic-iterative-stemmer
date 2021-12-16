@@ -36,11 +36,11 @@ class StemDictGenerator:
         if words is None:
             words = self.model.key_to_index.keys()
         model_stem_dict = {}
-        log.info("Generating stemming...")
+        log.info("Generating stem dict...")
         for word in tqdm(words):
             word_stemming = self.generate_word_stemming(word=word)
             model_stem_dict.update(word_stemming)
-        log.info(f"Total {len(model_stem_dict)} stemming generated")
+        log.info(f"Total {len(model_stem_dict)} stems generated")
         reduced_dict = reduce_stem_dict(stem_dict=model_stem_dict)
         return reduced_dict
 
