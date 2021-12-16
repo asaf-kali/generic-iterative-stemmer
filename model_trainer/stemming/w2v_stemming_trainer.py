@@ -14,5 +14,5 @@ class Word2VecStemmingTrainer(StemmingTrainer):
 if __name__ == "__main__":
     corpus_name = "small"
     corpus_directory = get_path(corpus_name)
-    trainer = Word2VecStemmingTrainer(corpus_directory=corpus_directory)
+    trainer = Word2VecStemmingTrainer(corpus_directory=corpus_directory, max_iterations=5, completed_iterations=1)
     trainer.train()

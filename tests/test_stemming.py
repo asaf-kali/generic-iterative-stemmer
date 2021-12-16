@@ -1,4 +1,13 @@
 from model_trainer.stemming import reduce_stem_dict
+from model_trainer.stemming.stemming_trainer import stem_sentence
+
+
+def test_stem_sentence():
+    sentence = "a b c d e f g"
+    stem_dict = {"a": "x"}
+    stemmed = stem_sentence(sentence=sentence, stem_dict=stem_dict)
+    expected = "x b c d e f g"
+    assert stemmed == expected
 
 
 def test_reduce_empty_stem_dict():

@@ -1,6 +1,7 @@
 import json
 import logging
 import os.path
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -44,6 +45,23 @@ def get_model_path(base_directory: str):
     return os.path.join(base_directory, "model.kv")
 
 
+@dataclass
+class StemmingIterationStats:
+    initial_vocab_size: Optional[int] = None
+    stem_dict: Optional[dict] = None
+
+    @property
+    def stem_dict_size(self) -> int:
+        return 0 if self.stem_dict is None else len(self.stem_dict)
+
+    def as_dict(self) -> dict:
+        return {
+            "initial_vocab_size": self.initial_vocab_size,
+            "stem_dict_size": self.stem_dict_size,
+            "stem_dict": self.stem_dict,
+        }
+
+
 class StemmingIterationTrainer:
     """
     Each stemming iteration i is given the corpus-i (that was generated in the i-1 iteration), and:
@@ -59,7 +77,7 @@ class StemmingIterationTrainer:
         self.iteration_number = iteration_number
         self.corpus_directory = corpus_directory
         self.model = base_model
-        self.stats: dict = {}
+        self.stats = StemmingIterationStats()
 
     @property
     def iteration_directory(self) -> str:
@@ -85,11 +103,15 @@ class StemmingIterationTrainer:
     def has_trained_model(self) -> bool:
         return self.model is not None
 
-    def run_stemming_iteration(self):
+    def run_stemming_iteration(self) -> StemmingIterationStats:
+        log.info(f"Running stemming iteration number {self.iteration_number}")
         if not self.has_trained_model:
             # TODO: First, try loading it
             self.model = self.train_model()
         self.stem_corpus()
+        self.save_stats()
+        log.info(f"Stemming iteration {self.iteration_number} completed")
+        return self.stats
 
     def train_model(self) -> KeyedVectors:
         model = self.trainer.train_model_on_corpus(
@@ -104,10 +126,9 @@ class StemmingIterationTrainer:
         return stem_generator.generate_model_stemming()
 
     def stem_corpus(self):
-        self.stats["initial_vocab_size"] = len(self.model.key_to_index)
+        self.stats.initial_vocab_size = len(self.model.key_to_index)
         stem_dict = self.generate_stem_dict()
-        self.stats["stem_dict"] = stem_dict
-        self.stats["stem_dict_size"] = len(stem_dict)
+        self.stats.stem_dict = stem_dict
         stem_corpus(
             original_corpus_path=self.iteration_corpus_path,
             output_corpus_path=self.next_iteration_corpus_path,
@@ -115,9 +136,10 @@ class StemmingIterationTrainer:
         )
 
     def save_stats(self):
-        stats_file = os.path.join(self.corpus_directory, "stats.json")
+        stats_file = os.path.join(self.iteration_directory, "stats.json")
         with open(stats_file, "w") as file:
-            serialized = json.dumps(self.stats)
+            stats_dict = self.stats.as_dict()
+            serialized = json.dumps(stats_dict, indent=2, ensure_ascii=False)
             file.write(serialized)
 
 
@@ -157,27 +179,31 @@ class StemmingTrainer:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
                 log.info(f"Reached {self.completed_iterations} iterations, quitting.")
                 break
-            self.run_iteration()
+            stats = self.run_iteration()
+            if stats.stem_dict_size == 0:
+                log.info("Iteration ended with no stemming, quitting.")
+                break
 
     @measure_time
     def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
         raise NotImplementedError()
 
     @measure_time
-    def run_iteration(self):
+    def run_iteration(self) -> StemmingIterationStats:
         iteration_trainer = StemmingIterationTrainer(
             trainer=self,
             iteration_number=self.completed_iterations + 1,
             corpus_directory=self.corpus_directory,
             base_model=self.latest_model,
         )
-        iteration_trainer.run_stemming_iteration()
+        stats = iteration_trainer.run_stemming_iteration()
         self.completed_iterations += 1
-        self.latest_model = iteration_trainer.model
+        self.latest_model = None
         self.save_state()
+        return stats
 
     def save_state(self):
         state_file = os.path.join(self.corpus_directory, "stemming-trainer-state.json")
         with open(state_file, "w") as file:
-            serialized = json.dumps(self.state)
+            serialized = json.dumps(self.state, indent=2)
             file.write(serialized)

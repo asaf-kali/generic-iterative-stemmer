@@ -50,8 +50,13 @@ LOGGING_CONFIG = {
             "formatter": "debug",
             "stream": sys.stderr,
         },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "run.log",
+            "formatter": "debug",
+        },
     },
-    "root": {"handlers": ["console_out", "console_err"], "level": "DEBUG"},
+    "root": {"handlers": ["console_out", "console_err", "file"], "level": "DEBUG"},
     "loggers": {"gensim": {"level": "INFO"}, "smart_open": {"level": "WARN"}},
 }
 
