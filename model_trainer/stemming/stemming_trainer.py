@@ -1,6 +1,7 @@
 import json
 import logging
 import os.path
+from pathlib import Path
 from typing import Optional
 
 from gensim.models import KeyedVectors
@@ -30,7 +31,9 @@ def stem_corpus(original_corpus_path: str, output_corpus_path: str, stem_dict: S
 
 
 def get_iteration_directory(base_directory: str, iteration_number: int) -> str:
-    return os.path.join(base_directory, f"iter-{iteration_number}")
+    directory = os.path.join(base_directory, f"iter-{iteration_number}")
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 def get_corpus_path(base_directory: str):
@@ -89,7 +92,9 @@ class StemmingIterationTrainer:
         self.stem_corpus()
 
     def train_model(self) -> KeyedVectors:
-        model = self.trainer.train_model_on_corpus(corpus_file_path=self.iteration_corpus_path)
+        model = self.trainer.train_model_on_corpus(
+            corpus_file_path=self.iteration_corpus_path, iteration_number=self.iteration_number
+        )
         model.save(self.iteration_trained_model_path)
         return model
 
@@ -155,7 +160,7 @@ class StemmingTrainer:
             self.run_iteration()
 
     @measure_time
-    def train_model_on_corpus(self, corpus_file_path: str) -> KeyedVectors:
+    def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
         raise NotImplementedError()
 
     @measure_time
@@ -176,7 +181,3 @@ class StemmingTrainer:
         with open(state_file, "w") as file:
             serialized = json.dumps(self.state)
             file.write(serialized)
-
-
-class Word2VecStemmingTrainer(StemmingTrainer):
-    pass

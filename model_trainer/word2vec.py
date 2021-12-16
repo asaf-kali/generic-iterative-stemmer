@@ -13,12 +13,12 @@ log = logging.getLogger(__name__)
 @measure_time
 def train(
     corpus_path: str,
-    output_model_path: str,
+    output_model_path: str = None,
     skip_gram: bool = False,
     vector_size: int = 100,
     window: int = 5,
     min_count: int = 5,
-):
+) -> Word2Vec:
     sentences = LineSentence(corpus_path)
     sg = 1 if skip_gram else 0
     model = Word2Vec(
@@ -30,11 +30,13 @@ def train(
     )
     model.build_vocab(corpus_iterable=sentences)
     model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=5)
-    log.debug("Training done, saving model...")
-    model_file_path = f"{output_model_path}.model"
-    kv_file_path = f"{output_model_path}.kv"
-    model.save(model_file_path)
-    model.wv.save(kv_file_path)
+    log.debug("Training done")
+    if output_model_path is not None:
+        log.debug("Saving model")
+        model_file_path = f"{output_model_path}.model"
+        kv_file_path = f"{output_model_path}.kv"
+        model.save(model_file_path)
+        model.wv.save(kv_file_path)
     return model
 
 
