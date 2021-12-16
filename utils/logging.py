@@ -1,7 +1,6 @@
 import logging
 import sys
 from datetime import timedelta
-from functools import wraps
 from logging import Filter
 from logging.config import dictConfig
 from time import time
@@ -62,14 +61,13 @@ def configure_logging():
     log.debug("Logging configured")
 
 
-def measure_time(f):
-    @wraps(f)
+def measure_time(func):
     def wrapper(*args, **kwargs):
         start = time()
-        result = f(*args, **kwargs)
+        result = func(*args, **kwargs)
         finish = time()
         delta = timedelta(seconds=finish - start)
-        log.info(f"Function '{f.__name__}' took {delta}.")
+        log.info(f"Function '{func.__name__}' took {delta}.")
         return result
 
     return wrapper
