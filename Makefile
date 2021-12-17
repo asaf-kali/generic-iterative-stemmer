@@ -2,7 +2,7 @@ LINE_LENGTH=120
 
 install:
 	pip install --upgrade pip
-	pip install -r requirements.txt
+	pip install -r requirements.txt -r requirements-dev.txt
 
 commit:
 	git add .
