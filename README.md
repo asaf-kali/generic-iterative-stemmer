@@ -1,40 +1,40 @@
-# Wikipedia Word Embedding
-Based on https://github.com/liorshk/wordembedding-hebrew
+# Stemming word embedding trainer
 
-#### Note: This code works for Hebrew, but it should work on any other language as well.
+A generic helper for training `gensim` and `fasttext` word embedding models.<br>
+Specifically, this repository was created to implement word stemming on a Wikipedia-based corpus in Hebrew, but it will
+probably also work for other languages and corpus sources as well.
 
-1. Install dependencies using `make install`.
+**Important** to note that while there are efficient and sophisticated approaches to the stemming task, this repository
+implements a naive approach, with no real-life time or memory considerations.
 
-2. Download Hebrew dataset from wikipedia:
-   1. Go to [wikimedia dumps](https://dumps.wikimedia.org/hewiki/latest/).
-   2. Download `hewiki-latest-pages-articles.xml.bz2`.
-  
-   In linux this can be easily done using
-   ```
-   wget https://dumps.wikimedia.org/hewiki/latest/hewiki-latest-pages-articles.xml.bz2
-   ```
+Based on https://github.com/liorshk/wordembedding-hebrew.
 
-3. Create your text corpus.
-   
-   `python create_corpus.py`.<br>
-   TODO add CLI interface, arg parse, add usage here.
+## Setup
+
+1. Create a `python3` virtual environment.
+2. Install dependencies using `make install`.
+
+## Usage
+
+This section shows the basic flow this repository was designed to perform.<br>
+It supports more complicated flows as well.
+
+1. Under `./data` folder, create a directory for your corpus (for example, `wiki-he`).
+
+
+2. Download Hebrew (or any other language) dataset from Wikipedia:
+    1. Go to [wikimedia dumps](https://dumps.wikimedia.org/hewiki/latest/).
+    2. Download `hewiki-latest-pages-articles.xml.bz2`, and save it under `./data/wiki-he`.
+
+
+3. Create your initial text corpus:
+
+   TODO: create a notebook for that.
+
 
 4. Train the model:
-   
-   TODO add CLI interface, arg parse, add usage here.
+
+   TODO: create a notebook for that.
 
 
 5. Play with your trained model using `playground.ipynb`.
-
-
-### TODO
-* לבדוק את השוני בין המודלים - לקחת מילה, לבדוק מרחק ל-1000 מילים רנדומליות. איך נראית ההתפלגות? מה ההבדל בין המודלים השונים?
-* לחלק מילים למחלקות שקילות (האוטו, באוטו, מהאוטו => אוטו).
-  * נאיבי: לקחת כל מילה, לבדוק אם מורידים את הפריקס האם התוצאה קיימת במאגר. אם כן - אותה מחלקה, להחליף במילה המייצגת.
-  * יותר טוב: לבדוק אם המילה שבודקים קרובה למילה בלי הפרפיקס. אם קרוב (מאוד) - אותה מחלקה, להחליף במילה המייצגת.
-  * יותר טוב: לאמן באיטרציות, בכל שלב להסתכל על המודל שאומן לפני כן עד שלא מחליפים (הרבה) מילים חדשות.
-  * אפשר להכניס גם סיומות (הטיות ריבוי, מינים, זמנים).
-  * חשוב: לשמור בתהליך את מילון מחלקות השקילות (מילה מקורית -> נציגת מחלקה), מכיוון שבמודל הסופי יהיו חסרות הרבה מילים, עדיין נצטרך לדעת לקבל מילה עם הטיה ולהגיד מה המחלקה שלה.
-  * לבדוק כמה התגשויות יש (כמה פעמים מילה אחת אפשר לפרש בשני הקשרים שונים).
-  * עוד אפשרות: לא נסנן מילה שקרובה לשתי מחלקות.
-  * שאלה: איך בוחרים נציג מחלקת שקילות? המילה הקצרה ביותר? המילה שבאמצע? אולי לא משנה בכלל אם אנחנו יודעים לתרגם.
