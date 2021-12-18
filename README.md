@@ -8,7 +8,8 @@ corpus sources and languages as well.
 
 **Important** to note that while there are sophisticated and efficient
 approaches to the stemming task, this repository implements a naive approach
-with no strict time or memory considerations.
+with no strict time or memory considerations (more about that in
+the [explanation section](#generic-iterative-stemming)).
 
 Based on https://github.com/liorshk/wordembedding-hebrew.
 
@@ -50,6 +51,6 @@ form of a `.kv` file), which inherits the standard `gensim.models.KeyedVectors`.
 
 5. Play with your trained model using `playground.ipynb`.
 
-## Stemming method
+## Generic iterative stemming
 
-TODO: Explain about the algorithm process and the output model.
+TODO: Explain the algorithm.
