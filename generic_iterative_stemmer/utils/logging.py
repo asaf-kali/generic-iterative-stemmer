@@ -34,8 +34,8 @@ LOGGING_CONFIG = {
         },
     },
     "filters": {
-        "std_filter": {"()": "utils.logging.LevelRangeFilter", "high": logging.WARNING},
-        "err_filter": {"()": "utils.logging.LevelRangeFilter", "low": logging.WARNING},
+        "std_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "high": logging.WARNING},
+        "err_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "low": logging.WARNING},
     },
     "handlers": {
         "console_out": {

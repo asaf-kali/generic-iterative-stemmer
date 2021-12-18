@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from model_trainer.config import get_path
-from model_trainer.stemming.w2v_stemming_trainer import Word2VecStemmingTrainer
+from generic_iterative_stemmer.training import Word2VecStemmingTrainer
+from generic_iterative_stemmer.utils import get_path
 
 
 class TestWord2VecStemmerIntegration(TestCase):

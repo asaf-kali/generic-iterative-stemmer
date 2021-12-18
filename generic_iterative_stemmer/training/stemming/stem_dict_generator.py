@@ -4,7 +4,7 @@ from typing import Dict, Iterable
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from utils.logging import measure_time
+from ...utils import measure_time
 
 log = logging.getLogger(__name__)
 

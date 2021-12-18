@@ -1,8 +1,7 @@
 from gensim.models import KeyedVectors
 
-from model_trainer import word2vec
-from model_trainer.config import get_path
-from model_trainer.stemming.stemming_trainer import StemmingTrainer
+from ..base import word2vec
+from . import StemmingTrainer
 
 
 class Word2VecStemmingTrainer(StemmingTrainer):
@@ -12,6 +11,8 @@ class Word2VecStemmingTrainer(StemmingTrainer):
 
 
 if __name__ == "__main__":
+    from ...utils import get_path
+
     corpus_name = "wiki-he-filter"
     corpus_directory = get_path(corpus_name)
     trainer = Word2VecStemmingTrainer(corpus_directory=corpus_directory, max_iterations=10, completed_iterations=5)

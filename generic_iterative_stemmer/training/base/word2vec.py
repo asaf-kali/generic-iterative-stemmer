@@ -4,7 +4,7 @@ import multiprocessing
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 
-from utils.logging import measure_time
+from ...utils import measure_time
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def train(
 
 
 if __name__ == "__main__":
-    from model_trainer.config import get_path
+    from generic_iterative_stemmer.training.utils import get_path
 
     corpus_name = "wiki-he"
     corpus_file = get_path(corpus_name, "corpus.txt")

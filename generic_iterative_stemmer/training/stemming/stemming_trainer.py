@@ -8,8 +8,8 @@ from typing import Optional
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from model_trainer.stemming import StemDict, StemDictGenerator
-from utils.logging import measure_time
+from ...utils import measure_time
+from . import StemDict, StemDictGenerator
 
 log = logging.getLogger(__name__)
 

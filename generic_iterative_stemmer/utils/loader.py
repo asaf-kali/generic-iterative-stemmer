@@ -1,6 +1,11 @@
+import logging
+import os
+
 from gensim.models import KeyedVectors, Word2Vec, fasttext
 
-from model_trainer.word2vec import log
+log = logging.getLogger(__name__)
+
+DATA_FOLDER = os.getenv("DATA_FOLDER_PATH", "./data")
 
 
 def load_kv(kv_path: str) -> KeyedVectors:
@@ -19,3 +24,7 @@ def load_ft_model(model_path: str):
     model = fasttext.load_facebook_model(model_path)
     log.info("fasttext model loaded")
     return model
+
+
+def get_path(*path: str) -> str:
+    return os.path.join(DATA_FOLDER, *path)

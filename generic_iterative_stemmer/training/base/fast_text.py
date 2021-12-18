@@ -2,8 +2,7 @@ import logging
 
 import fasttext as ft
 
-from model_trainer.config import get_path
-from utils.logging import measure_time
+from ...utils import get_path, measure_time
 
 log = logging.getLogger(__name__)
 

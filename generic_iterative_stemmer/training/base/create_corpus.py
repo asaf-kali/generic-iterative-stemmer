@@ -5,8 +5,7 @@ from typing import List
 from gensim.corpora import WikiCorpus
 from gensim.corpora.wikicorpus import tokenize as gensim_tokenizer
 
-from model_trainer.config import get_path
-from utils.logging import measure_time
+from ...utils import get_path, measure_time
 
 log = logging.getLogger(__name__)
 
