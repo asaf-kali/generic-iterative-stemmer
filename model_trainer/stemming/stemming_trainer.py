@@ -45,6 +45,10 @@ def get_model_path(base_directory: str):
     return os.path.join(base_directory, "model.kv")
 
 
+def get_stemming_trainer_state_path(base_directory: str):
+    return os.path.join(base_directory, "stemming-trainer-state.json")
+
+
 @dataclass
 class StemmingIterationStats:
     initial_vocab_size: Optional[int] = None
@@ -157,7 +161,8 @@ class StemmingTrainer:
         self.max_iterations = max_iterations
 
     @classmethod
-    def load_from_state(cls, state_path: str, **kwargs) -> "StemmingTrainer":
+    def load_from_state_file(cls, corpus_directory: str, **kwargs) -> "StemmingTrainer":
+        state_path = get_stemming_trainer_state_path(corpus_directory)
         with open(state_path) as state_file:
             content = state_file.read()
         state: dict = json.loads(content)
@@ -174,7 +179,7 @@ class StemmingTrainer:
 
     @measure_time
     def train(self):
-        log.info("Starting stemming iterations training...")
+        log.info("Starting stemmer iterations training...")
         while True:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
                 log.info(f"Reached {self.completed_iterations} iterations, quitting.")
@@ -203,7 +208,7 @@ class StemmingTrainer:
         return stats
 
     def save_state(self):
-        state_file = os.path.join(self.corpus_directory, "stemming-trainer-state.json")
-        with open(state_file, "w") as file:
+        state_path = get_stemming_trainer_state_path(self.corpus_directory)
+        with open(state_path, "w") as state_file:
             serialized = json.dumps(self.state, indent=2)
-            file.write(serialized)
+            state_file.write(serialized)
