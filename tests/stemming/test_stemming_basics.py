@@ -1,5 +1,4 @@
-from generic_iterative_stemmer.training.stemming import reduce_stem_dict
-from generic_iterative_stemmer.training.stemming.stemming_trainer import stem_sentence
+from generic_iterative_stemmer.training.stemming import reduce_stem_dict, stem_sentence
 
 
 def test_stem_sentence():

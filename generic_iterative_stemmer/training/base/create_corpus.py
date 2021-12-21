@@ -5,7 +5,7 @@ from typing import List
 from gensim.corpora import WikiCorpus
 from gensim.corpora.wikicorpus import tokenize as gensim_tokenizer
 
-from ...utils import get_path, measure_time
+from ...utils import measure_time
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +46,8 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str):
 
 
 if __name__ == "__main__":
+    from ...utils import get_path
+
     articles = get_path("hewiki-latest-pages-articles.xml.bz2")
     out = get_path("wiki-he-filtered2", "corpus.txt")
     generate_wiki_corpus_file(articles, out)

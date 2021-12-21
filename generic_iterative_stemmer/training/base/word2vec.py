@@ -40,7 +40,7 @@ def train(
 
 
 if __name__ == "__main__":
-    from generic_iterative_stemmer.training.utils import get_path
+    from ...utils import get_path
 
     corpus_name = "wiki-he"
     corpus_file = get_path(corpus_name, "corpus.txt")

@@ -2,7 +2,7 @@ import logging
 
 import fasttext as ft
 
-from ...utils import get_path, measure_time
+from ...utils import measure_time
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +15,8 @@ def train(corpus_path: str, output_model_path: str, algorithm: str = "cbow"):
 
 
 if __name__ == "__main__":
+    from ...utils import get_path
+
     corpus_name = "small"
     corpus = get_path(corpus_name, "corpus.txt")
     output = get_path(corpus_name, "fasttext.model")
