@@ -11,7 +11,14 @@ log = logging.getLogger(__name__)
 
 HEBREW_PATTERN = re.compile(r"[\u0590-\u05FF \-']+")
 
-HEBREW_SUFFIX_LETTERS = ("ן", "ם", "ץ", "ף", "ך")
+SUFFIX_LETTER_TO_NON_SUFFIX_LETTER = {
+    "ך": "כ",
+    "ם": "מ",
+    "ן": "נ",
+    "ף": "פ",
+    "ץ": "צ",
+}
+HEBREW_SUFFIX_LETTERS = tuple(SUFFIX_LETTER_TO_NON_SUFFIX_LETTER.keys())
 
 
 def _is_only_hebrew(token: str) -> bool:
@@ -21,10 +28,11 @@ def _is_only_hebrew(token: str) -> bool:
 def _replace_suffix_letter(token: str) -> str:
     if not token.endswith(HEBREW_SUFFIX_LETTERS):
         return token
-    return token[:-1] + chr(ord(token[-1]) + 1)
+    suffix_letter = token[-1]
+    return token[:-1] + SUFFIX_LETTER_TO_NON_SUFFIX_LETTER[suffix_letter]
 
 
-def hebrew_tokenizer(content: str, token_min_len: int, token_max_len: int, lower: bool) -> List[str]:
+def hebrew_tokenizer(content: str, token_min_len: int, token_max_len: int, lower: bool = False) -> List[str]:
     tokens = gensim_tokenizer(content, token_min_len, token_max_len, lower)
     hebrew_tokens = [_replace_suffix_letter(token) for token in tokens if _is_only_hebrew(token)]
     return hebrew_tokens
