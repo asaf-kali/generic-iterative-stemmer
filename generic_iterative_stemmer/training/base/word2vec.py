@@ -35,7 +35,7 @@ def train(
         model_file_path = f"{output_model_path}.model"
         kv_file_path = f"{output_model_path}.kv"
         model.save(model_file_path)
-        model.wv.save(kv_file_path)
+        model.wv.save_stem_dict(kv_file_path)
     return model
 
 

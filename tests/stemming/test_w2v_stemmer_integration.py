@@ -8,6 +8,7 @@ from generic_iterative_stemmer.training import Word2VecStemmingTrainer
 from generic_iterative_stemmer.training.stemming.stemming_trainer import (
     get_model_path,
     get_stats_path,
+    get_stem_dict_path,
 )
 from generic_iterative_stemmer.utils import get_path
 
@@ -63,6 +64,13 @@ class TestWord2VecStemmerIntegration(TestCase):
             iteration_stemmed_words = set(iteration_stem_dict.keys())
             assert stemmed_words.intersection(iteration_stemmed_words) == set()
             stemmed_words.update(iteration_stemmed_words)
+
+        # TODO: This is actually a different test.
+        stem_dict_path = get_stem_dict_path(trainer.last_completed_iteration_folder)
+        with open(stem_dict_path) as file:
+            completed_stem_dict = json.load(file)
+
+        assert len(completed_stem_dict) == len(stemmed_words)
 
     def test_no_stemmed_corpus_is_generated_when_stemming_is_complete(self):
         trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=None)

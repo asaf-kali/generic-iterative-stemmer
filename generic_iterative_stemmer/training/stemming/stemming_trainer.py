@@ -52,6 +52,11 @@ def get_stats_path(base_folder: str) -> str:
     return os.path.join(base_folder, "stats.json")
 
 
+def get_stem_dict_path(base_folder: str) -> str:
+    model_path = get_model_path(base_folder)
+    return f"{model_path}.stem-dict.json"
+
+
 def get_stemming_trainer_state_path(base_folder: str) -> str:
     return os.path.join(base_folder, "stemming-trainer-state.json")
 
@@ -203,7 +208,7 @@ class StemmingTrainer:
         return [os.path.join(self.corpus_folder, folder) for folder in self.iteration_folders_names]
 
     @measure_time
-    def train(self):
+    def train(self, save_stem_dict: bool = True):
         log.info("Starting stemmer iterations training...")
         while True:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
@@ -213,6 +218,8 @@ class StemmingTrainer:
             if stats.stem_dict_size == 0:
                 log.info("Iteration ended with no stemming, quitting.")
                 break
+        if save_stem_dict:
+            self.save_stem_dict()
 
     @measure_time
     def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
@@ -253,6 +260,19 @@ class StemmingTrainer:
         reduced_stem_dict = reduce_stem_dict(stem_dict)
         return reduced_stem_dict
 
-    def save(self):
-        # stem_dict = self.collect_complete_stem_dict()
-        pass
+    @property
+    def last_completed_iteration_folder(self) -> str:
+        # TODO: Add self.completed_iterations == 0 and self.completed_iterations == 1 validations
+        iteration_folders = self.iteration_folders_paths
+        return iteration_folders[-1] if self.is_fully_stemmed else iteration_folders[-2]
+
+    def save_stem_dict(self):
+        if self.completed_iterations == 0:
+            log.info("No iterations completed, skipping save.")
+            return
+        stem_dict = self.collect_complete_stem_dict()
+        stem_dict_path = get_stem_dict_path(self.last_completed_iteration_folder)
+        with open(stem_dict_path, "w") as file:
+            serialized = json.dumps(stem_dict, indent=2, ensure_ascii=False)
+            file.write(serialized)
+        log.debug(f"Stem dict saved: {stem_dict_path}.")
