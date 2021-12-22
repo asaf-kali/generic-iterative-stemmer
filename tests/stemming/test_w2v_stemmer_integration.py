@@ -5,6 +5,10 @@ from typing import Set
 from unittest import TestCase
 
 from generic_iterative_stemmer.training import Word2VecStemmingTrainer
+from generic_iterative_stemmer.training.stemming.stemming_trainer import (
+    get_model_path,
+    get_stats_path,
+)
 from generic_iterative_stemmer.utils import get_path
 
 TEST_CORPUS_DIRECTORY = "./tests/data/small"
@@ -43,15 +47,13 @@ class TestWord2VecStemmerIntegration(TestCase):
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
 
     def test_stemmed_words_do_not_repeat(self):
-        trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=20)
+        trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=5)
         trainer.train()
 
         assert trainer.completed_iterations > 1
 
         stemmed_words: Set[str] = set()
         for iteration_folder in trainer.iteration_folders_paths:
-            if not os.path.isdir(iteration_folder):
-                continue
             stats_path = os.path.join(iteration_folder, "stats.json")
             if not os.path.exists(stats_path):
                 continue
@@ -61,3 +63,16 @@ class TestWord2VecStemmerIntegration(TestCase):
             iteration_stemmed_words = set(iteration_stem_dict.keys())
             assert stemmed_words.intersection(iteration_stemmed_words) == set()
             stemmed_words.update(iteration_stemmed_words)
+
+    def test_no_stemmed_corpus_is_generated_when_stemming_is_complete(self):
+        trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=None)
+        trainer.train()
+
+        assert trainer.completed_iterations > 0
+        assert trainer.completed_iterations == len(trainer.iteration_folders_names)
+        assert trainer.is_fully_stemmed
+        for iteration_folder in trainer.iteration_folders_paths:
+            model_path = get_model_path(iteration_folder)
+            stats_path = get_stats_path(iteration_folder)
+            assert os.path.exists(model_path)
+            assert os.path.exists(stats_path)
