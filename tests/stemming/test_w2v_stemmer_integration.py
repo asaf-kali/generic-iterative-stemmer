@@ -31,31 +31,28 @@ class TestWord2VecStemmerIntegration(TestCase):
     def setUp(self) -> None:
         self._reset_corpus_directory()
 
-    @property
-    def test_corpus_sub_files(self) -> Set[str]:
-        return set(os.listdir(self.test_corpus_directory))
-
     def test_load_trainer_from_state_sanity(self):
         trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=2)
         trainer.train()
 
         loaded_trainer = Word2VecStemmingTrainer.load_from_state_file(self.test_corpus_directory)
         assert loaded_trainer.completed_iterations == 2
-        assert self.test_corpus_sub_files == {"iter-1", "iter-2", "iter-3", "stemming-trainer-state.json"}
+        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
 
         loaded_trainer.run_iteration()
-        assert self.test_corpus_sub_files == {"iter-1", "iter-2", "iter-3", "iter-4", "stemming-trainer-state.json"}
+        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
 
     def test_stemmed_words_do_not_repeat(self):
         trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=20)
         trainer.train()
 
+        assert trainer.completed_iterations > 1
+
         stemmed_words: Set[str] = set()
-        for file in self.test_corpus_sub_files:
-            rel_path = os.path.join(self.test_corpus_directory, file)
-            if not os.path.isdir(rel_path):
+        for iteration_folder in trainer.iteration_folders_paths:
+            if not os.path.isdir(iteration_folder):
                 continue
-            stats_path = os.path.join(rel_path, "stats.json")
+            stats_path = os.path.join(iteration_folder, "stats.json")
             if not os.path.exists(stats_path):
                 continue
             with open(stats_path) as stats_file:

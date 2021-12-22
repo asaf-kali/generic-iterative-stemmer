@@ -1,9 +1,10 @@
 import json
 import logging
 import os.path
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from gensim.models import KeyedVectors
 from tqdm import tqdm
@@ -12,6 +13,8 @@ from ...utils import measure_time
 from . import StemDict, StemDictGenerator
 
 log = logging.getLogger(__name__)
+
+ITER_FOLDER_PATTERN = re.compile(r"iter-\d+")
 
 
 def stem_sentence(sentence: str, stem_dict: StemDict) -> str:
@@ -177,6 +180,17 @@ class StemmingTrainer:
             "max_iterations": self.max_iterations,
         }
 
+    @property
+    def iteration_folders_names(self) -> List[str]:
+        corpus_sub_files = os.listdir(self.corpus_directory)
+        iter_folders = [file for file in corpus_sub_files if ITER_FOLDER_PATTERN.fullmatch(file)]
+        iter_folders.sort()
+        return iter_folders
+
+    @property
+    def iteration_folders_paths(self) -> List[str]:
+        return [os.path.join(self.corpus_directory, folder) for folder in self.iteration_folders_names]
+
     @measure_time
     def train(self):
         log.info("Starting stemmer iterations training...")
@@ -212,3 +226,10 @@ class StemmingTrainer:
         with open(state_path, "w") as state_file:
             serialized = json.dumps(self.state, indent=2)
             state_file.write(serialized)
+
+    def _collect_complete_stem_dict(self):
+        pass
+
+    def save(self):
+
+        pass
