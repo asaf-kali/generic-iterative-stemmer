@@ -9,6 +9,7 @@ from typing import List, Optional
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
+from ...models.stemmed_keyed_vectors import STEM_DICT_FILE_SUFFIX, StemmedKeyedVectors
 from ...utils import measure_time
 from . import StemDict, StemDictGenerator, reduce_stem_dict
 
@@ -54,7 +55,7 @@ def get_stats_path(base_folder: str) -> str:
 
 def get_stem_dict_path(base_folder: str) -> str:
     model_path = get_model_path(base_folder)
-    return f"{model_path}.stem-dict.json"
+    return f"{model_path}.{STEM_DICT_FILE_SUFFIX}"
 
 
 def get_stemming_trainer_state_path(base_folder: str) -> str:
@@ -276,3 +277,7 @@ class StemmingTrainer:
             serialized = json.dumps(stem_dict, indent=2, ensure_ascii=False)
             file.write(serialized)
         log.debug(f"Stem dict saved: {stem_dict_path}.")
+
+    def get_stemmed_keyed_vectors(self) -> StemmedKeyedVectors:
+        model_path = get_model_path(self.last_completed_iteration_folder)
+        return StemmedKeyedVectors.load(model_path)

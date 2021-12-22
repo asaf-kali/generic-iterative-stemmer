@@ -84,3 +84,14 @@ class TestWord2VecStemmerIntegration(TestCase):
             stats_path = get_stats_path(iteration_folder)
             assert os.path.exists(model_path)
             assert os.path.exists(stats_path)
+
+    def test_get_stemmed_keyed_vectors(self):
+        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=None)
+        trainer.train()
+
+        kv = trainer.get_stemmed_keyed_vectors()
+        model_vocab = set(kv.key_to_index.keys())
+        stemmed_words = set(kv.stem_dict.keys())
+        for stemmed_word in stemmed_words:
+            assert stemmed_word not in model_vocab
+            assert kv[stemmed_word] is not None
