@@ -14,6 +14,6 @@ if __name__ == "__main__":
     from ...utils import get_path
 
     corpus_name = "wiki-he-filter"
-    corpus_directory = get_path(corpus_name)
-    trainer = Word2VecStemmingTrainer(corpus_directory=corpus_directory, max_iterations=10, completed_iterations=5)
+    corpus_folder = get_path(corpus_name)
+    trainer = Word2VecStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, completed_iterations=5)
     trainer.train()

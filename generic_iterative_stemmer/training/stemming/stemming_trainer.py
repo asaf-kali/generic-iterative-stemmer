@@ -34,26 +34,26 @@ def stem_corpus(original_corpus_path: str, output_corpus_path: str, stem_dict: S
     log.info("Stemming corpus done")
 
 
-def get_iteration_directory(base_directory: str, iteration_number: int) -> str:
-    directory = os.path.join(base_directory, f"iter-{iteration_number}")
-    Path(directory).mkdir(parents=True, exist_ok=True)
-    return directory
+def get_iteration_folder(base_folder: str, iteration_number: int) -> str:
+    folder = os.path.join(base_folder, f"iter-{iteration_number}")
+    Path(folder).mkdir(parents=True, exist_ok=True)
+    return folder
 
 
-def get_corpus_path(base_directory: str) -> str:
-    return os.path.join(base_directory, "corpus.txt")
+def get_corpus_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "corpus.txt")
 
 
-def get_model_path(base_directory: str) -> str:
-    return os.path.join(base_directory, "model.kv")
+def get_model_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "model.kv")
 
 
-def get_stats_path(base_directory: str) -> str:
-    return os.path.join(base_directory, "stats.json")
+def get_stats_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "stats.json")
 
 
-def get_stemming_trainer_state_path(base_directory: str) -> str:
-    return os.path.join(base_directory, "stemming-trainer-state.json")
+def get_stemming_trainer_state_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "stemming-trainer-state.json")
 
 
 @dataclass
@@ -82,33 +82,33 @@ class StemmingIterationTrainer:
     """
 
     def __init__(
-        self, trainer: "StemmingTrainer", iteration_number: int, corpus_directory: str, base_model: KeyedVectors = None
+        self, trainer: "StemmingTrainer", iteration_number: int, corpus_folder: str, base_model: KeyedVectors = None
     ):
         self.trainer = trainer
         self.iteration_number = iteration_number
-        self.corpus_directory = corpus_directory
+        self.corpus_folder = corpus_folder
         self.model = base_model
         self.stats = StemmingIterationStats()
 
     @property
-    def iteration_directory(self) -> str:
-        return get_iteration_directory(self.corpus_directory, iteration_number=self.iteration_number)
+    def iteration_folder(self) -> str:
+        return get_iteration_folder(self.corpus_folder, iteration_number=self.iteration_number)
 
     @property
-    def next_iteration_directory(self) -> str:
-        return get_iteration_directory(self.corpus_directory, iteration_number=self.iteration_number + 1)
+    def next_iteration_folder(self) -> str:
+        return get_iteration_folder(self.corpus_folder, iteration_number=self.iteration_number + 1)
 
     @property
     def iteration_corpus_path(self) -> str:
-        return get_corpus_path(self.iteration_directory)
+        return get_corpus_path(self.iteration_folder)
 
     @property
     def next_iteration_corpus_path(self) -> str:
-        return get_corpus_path(self.next_iteration_directory)
+        return get_corpus_path(self.next_iteration_folder)
 
     @property
     def iteration_trained_model_path(self) -> str:
-        return get_model_path(self.iteration_directory)
+        return get_model_path(self.iteration_folder)
 
     @property
     def has_trained_model(self) -> bool:
@@ -150,7 +150,7 @@ class StemmingIterationTrainer:
         )
 
     def save_stats(self):
-        stats_file = get_stats_path(self.iteration_directory)
+        stats_file = get_stats_path(self.iteration_folder)
         with open(stats_file, "w") as file:
             stats_dict = self.stats.as_dict()
             serialized = json.dumps(stats_dict, indent=2, ensure_ascii=False)
@@ -160,21 +160,21 @@ class StemmingIterationTrainer:
 class StemmingTrainer:
     def __init__(
         self,
-        corpus_directory: str,
+        corpus_folder: str,
         completed_iterations: int = 0,
         latest_model: Optional[KeyedVectors] = None,
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
     ):
-        self.corpus_directory = corpus_directory
+        self.corpus_folder = corpus_folder
         self.completed_iterations = completed_iterations
         self.latest_model = latest_model  # TODO: Think about that field.
         self.max_iterations = max_iterations
         self.is_fully_stemmed = is_fully_stemmed
 
     @classmethod
-    def load_from_state_file(cls, corpus_directory: str, **kwargs) -> "StemmingTrainer":
-        state_path = get_stemming_trainer_state_path(corpus_directory)
+    def load_from_state_file(cls, corpus_folder: str, **kwargs) -> "StemmingTrainer":
+        state_path = get_stemming_trainer_state_path(corpus_folder)
         with open(state_path) as state_file:
             content = state_file.read()
         state: dict = json.loads(content)
@@ -185,7 +185,7 @@ class StemmingTrainer:
     def state(self) -> dict:
         # TODO: Replace with serializable model.
         return {
-            "corpus_directory": self.corpus_directory,
+            "corpus_folder": self.corpus_folder,
             "completed_iterations": self.completed_iterations,
             "max_iterations": self.max_iterations,
             "is_fully_stemmed": self.is_fully_stemmed,
@@ -193,14 +193,14 @@ class StemmingTrainer:
 
     @property
     def iteration_folders_names(self) -> List[str]:
-        corpus_sub_files = os.listdir(self.corpus_directory)
+        corpus_sub_files = os.listdir(self.corpus_folder)
         iter_folders = [file for file in corpus_sub_files if ITER_FOLDER_PATTERN.fullmatch(file)]
         iter_folders.sort()
         return iter_folders
 
     @property
     def iteration_folders_paths(self) -> List[str]:
-        return [os.path.join(self.corpus_directory, folder) for folder in self.iteration_folders_names]
+        return [os.path.join(self.corpus_folder, folder) for folder in self.iteration_folders_names]
 
     @measure_time
     def train(self):
@@ -223,7 +223,7 @@ class StemmingTrainer:
         iteration_trainer = StemmingIterationTrainer(
             trainer=self,
             iteration_number=self.completed_iterations + 1,
-            corpus_directory=self.corpus_directory,
+            corpus_folder=self.corpus_folder,
             base_model=self.latest_model,
         )
         iteration_stats = iteration_trainer.run_stemming_iteration()
@@ -235,7 +235,7 @@ class StemmingTrainer:
         return iteration_stats
 
     def save_state(self):
-        state_path = get_stemming_trainer_state_path(self.corpus_directory)
+        state_path = get_stemming_trainer_state_path(self.corpus_folder)
         with open(state_path, "w") as state_file:
             serialized = json.dumps(self.state, indent=2)
             state_file.write(serialized)

@@ -11,35 +11,35 @@ from generic_iterative_stemmer.training.stemming.stemming_trainer import (
 )
 from generic_iterative_stemmer.utils import get_path
 
-TEST_CORPUS_DIRECTORY = "./tests/data/small"
+TEST_CORPUS_FOLDER = "./tests/data/small"
 
 
 class TestWord2VecStemmerIntegration(TestCase):
     corpus_name: str
-    src_corpus_directory: str
-    test_corpus_directory: str
+    src_corpus_folder: str
+    test_corpus_folder: str
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.corpus_name = "small"
-        cls.src_corpus_directory = get_path(cls.corpus_name)
-        cls.test_corpus_directory = TEST_CORPUS_DIRECTORY
+        cls.src_corpus_folder = get_path(cls.corpus_name)
+        cls.test_corpus_folder = TEST_CORPUS_FOLDER
 
-    def _reset_corpus_directory(self):
-        shutil.rmtree(self.test_corpus_directory, ignore_errors=True)
-        src_corpus_file_path = os.path.join(self.src_corpus_directory, "corpus.txt")
-        test_corpus_file_path = os.path.join(self.test_corpus_directory, "iter-1", "corpus.txt")
+    def _reset_corpus_folder(self):
+        shutil.rmtree(self.test_corpus_folder, ignore_errors=True)
+        src_corpus_file_path = os.path.join(self.src_corpus_folder, "corpus.txt")
+        test_corpus_file_path = os.path.join(self.test_corpus_folder, "iter-1", "corpus.txt")
         os.makedirs(os.path.dirname(test_corpus_file_path))
         shutil.copyfile(src=src_corpus_file_path, dst=test_corpus_file_path)
 
     def setUp(self) -> None:
-        self._reset_corpus_directory()
+        self._reset_corpus_folder()
 
     def test_load_trainer_from_state_sanity(self):
-        trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=2)
+        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=2)
         trainer.train()
 
-        loaded_trainer = Word2VecStemmingTrainer.load_from_state_file(self.test_corpus_directory)
+        loaded_trainer = Word2VecStemmingTrainer.load_from_state_file(self.test_corpus_folder)
         assert loaded_trainer.completed_iterations == 2
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
 
@@ -47,7 +47,7 @@ class TestWord2VecStemmerIntegration(TestCase):
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
 
     def test_stemmed_words_do_not_repeat(self):
-        trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=5)
+        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=5)
         trainer.train()
 
         assert trainer.completed_iterations > 1
@@ -65,7 +65,7 @@ class TestWord2VecStemmerIntegration(TestCase):
             stemmed_words.update(iteration_stemmed_words)
 
     def test_no_stemmed_corpus_is_generated_when_stemming_is_complete(self):
-        trainer = Word2VecStemmingTrainer(corpus_directory=self.test_corpus_directory, max_iterations=None)
+        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=None)
         trainer.train()
 
         assert trainer.completed_iterations > 0
