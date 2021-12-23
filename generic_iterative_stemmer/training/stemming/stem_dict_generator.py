@@ -1,6 +1,7 @@
 import logging
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
+import editdistance
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
@@ -12,21 +13,30 @@ StemDict = Dict[str, str]
 
 
 class StemDictGenerator:
-    def __init__(self, model: KeyedVectors, k: int = 50, min_grade: float = 0.75, max_len_diff: int = 5):
+    def __init__(
+        self,
+        model: KeyedVectors,
+        k: Optional[int] = 50,
+        min_grade: Optional[float] = 0.75,
+        max_len_diff: Optional[int] = 5,
+        max_edit_distance: Optional[int] = 2,
+    ):
         self.model = model
         self.k = k
         self.min_grade = min_grade
         self.max_len_diff = max_len_diff
+        self.max_edit_distance = max_edit_distance
 
     def generate_word_stemming(self, word: str) -> dict:
         similarities = self.model.most_similar(word, topn=self.k)
         stem_dict = {}
         for other, grade in similarities:
-            if word not in other:
-                continue
             if grade < self.min_grade:
                 continue
-            if abs(len(word) - len(other)) > self.max_len_diff:
+            if word not in other:
+                if self.max_edit_distance and editdistance.eval(word, other) > self.max_edit_distance:
+                    continue
+            if self.max_len_diff and abs(len(word) - len(other)) > self.max_len_diff:
                 continue
             stem_dict[other] = word
         return stem_dict
