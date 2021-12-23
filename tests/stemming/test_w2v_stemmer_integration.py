@@ -1,10 +1,9 @@
 import json
 import os
-import shutil
 from typing import Set
-from unittest import TestCase
 
 import pytest
+from stemming.stemmer_test import StemmerIntegrationTest
 
 from generic_iterative_stemmer.errors import StemmingTrainerError
 from generic_iterative_stemmer.models import get_model_path
@@ -14,9 +13,6 @@ from generic_iterative_stemmer.models.stemmed_keyed_vectors import (
 )
 from generic_iterative_stemmer.training import Word2VecStemmingTrainer
 from generic_iterative_stemmer.training.stemming.stemming_trainer import get_stats_path
-from generic_iterative_stemmer.utils import get_path
-
-TEST_CORPUS_FOLDER = "./tests/data/small"
 
 
 def assert_skv_sanity(skv: StemmedKeyedVectors, fully_stemmed: bool = True):
@@ -28,27 +24,7 @@ def assert_skv_sanity(skv: StemmedKeyedVectors, fully_stemmed: bool = True):
         assert skv[stemmed_word] is not None
 
 
-class TestWord2VecStemmerIntegration(TestCase):
-    corpus_name: str
-    src_corpus_folder: str
-    test_corpus_folder: str
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.corpus_name = "small"
-        cls.src_corpus_folder = get_path(cls.corpus_name)
-        cls.test_corpus_folder = TEST_CORPUS_FOLDER
-
-    def _reset_corpus_folder(self):
-        shutil.rmtree(self.test_corpus_folder, ignore_errors=True)
-        src_corpus_file_path = os.path.join(self.src_corpus_folder, "corpus.txt")
-        test_corpus_file_path = os.path.join(self.test_corpus_folder, "iter-1", "corpus.txt")
-        os.makedirs(os.path.dirname(test_corpus_file_path))
-        shutil.copyfile(src=src_corpus_file_path, dst=test_corpus_file_path)
-
-    def setUp(self) -> None:
-        self._reset_corpus_folder()
-
+class TestWord2VecStemmerIntegration(StemmerIntegrationTest):
     def test_load_trainer_from_state_sanity(self):
         trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=2)
         trainer.train()

@@ -65,7 +65,7 @@ class StemmedKeyedVectors(KeyedVectors):
         try:
             with open(stem_dict_path) as file:
                 stem_dict = json.load(file)
-        except IOError as e:
+        except FileNotFoundError as e:
             raise StemDictFileNotFoundError() from e
         return StemmedKeyedVectors.from_keyed_vectors(stem_dict=stem_dict, kv=kv)
 
