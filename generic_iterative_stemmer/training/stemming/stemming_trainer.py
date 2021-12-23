@@ -215,7 +215,7 @@ class StemmingTrainer:
 
     @measure_time
     def train(self, save_stem_dict_when_done: bool = True):
-        log.info("Starting stemmer iterations training...")
+        log.info("Starting iterations stemmer training...")
         while True:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
                 log.info(f"Reached {self.completed_iterations} iterations, quitting.")
