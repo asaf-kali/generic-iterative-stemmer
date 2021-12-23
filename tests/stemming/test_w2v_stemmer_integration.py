@@ -45,6 +45,7 @@ class TestWord2VecStemmerIntegration(TestCase):
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
 
         loaded_trainer.run_iteration()
+        assert loaded_trainer.completed_iterations == 3
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
 
     def test_stemmed_words_do_not_repeat(self):

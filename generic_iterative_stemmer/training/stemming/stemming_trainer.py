@@ -9,9 +9,15 @@ from typing import List, Optional
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
+from . import (
+    MissingIterationFolderError,
+    StemDict,
+    StemDictGenerator,
+    StemmingTrainerError,
+    reduce_stem_dict,
+)
 from ...models.stemmed_keyed_vectors import STEM_DICT_FILE_SUFFIX, StemmedKeyedVectors
 from ...utils import measure_time
-from . import StemDict, StemDictGenerator, reduce_stem_dict
 
 log = logging.getLogger(__name__)
 
@@ -201,12 +207,12 @@ class StemmingTrainer:
     def iteration_folders_names(self) -> List[str]:
         corpus_sub_files = os.listdir(self.corpus_folder)
         iter_folders = [file for file in corpus_sub_files if ITER_FOLDER_PATTERN.fullmatch(file)]
-        iter_folders.sort()
+        iter_folders.sort(key=lambda file_name: int(file_name[5:]))  # Sort them by iteration index
         return iter_folders
 
     @property
     def iteration_folders_paths(self) -> List[str]:
-        return [os.path.join(self.corpus_folder, folder) for folder in self.iteration_folders_names]
+        return [os.path.join(self.corpus_folder, folder_name) for folder_name in self.iteration_folders_names]
 
     @measure_time
     def train(self, save_stem_dict: bool = True):
@@ -215,8 +221,11 @@ class StemmingTrainer:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
                 log.info(f"Reached {self.completed_iterations} iterations, quitting.")
                 break
-            stats = self.run_iteration()
-            if stats.stem_dict_size == 0:
+            if self.is_fully_stemmed:
+                log.info("Already fully stemmed, quitting.")
+                break
+            iteration_stats = self.run_iteration()
+            if iteration_stats.stem_dict_size == 0:
                 log.info("Iteration ended with no stemming, quitting.")
                 break
         if save_stem_dict:
@@ -263,9 +272,16 @@ class StemmingTrainer:
 
     @property
     def last_completed_iteration_folder(self) -> str:
-        # TODO: Add self.completed_iterations == 0 and self.completed_iterations == 1 validations
+        if self.completed_iterations < 1:
+            raise StemmingTrainerError("No completed iterations yet.")
         iteration_folders = self.iteration_folders_paths
-        return iteration_folders[-1] if self.is_fully_stemmed else iteration_folders[-2]
+        if len(iteration_folders) < 1:
+            raise MissingIterationFolderError()
+        if self.is_fully_stemmed:
+            return iteration_folders[-1]
+        if len(iteration_folders) < 2:
+            raise MissingIterationFolderError()
+        return iteration_folders[-2]
 
     def save_stem_dict(self):
         if self.completed_iterations == 0:

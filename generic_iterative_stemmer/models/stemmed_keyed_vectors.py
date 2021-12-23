@@ -26,8 +26,8 @@ class StemmedKeyedVectors(KeyedVectors):
 
     @classmethod
     def from_keyed_vectors(cls, stem_dict: dict, kv: KeyedVectors) -> "StemmedKeyedVectors":
-        model = StemmedKeyedVectors(stem_dict, vector_size=kv.vector_size)
-        # TODO: This is pretty ugly, but its working.
+        model = cls(stem_dict, vector_size=kv.vector_size)
+        # This is pretty ugly, but it's working.
         for key, value in kv.__dict__.items():
             model.__dict__[key] = value
         return model
