@@ -16,8 +16,8 @@ class StemDictGenerator:
     def __init__(
         self,
         model: KeyedVectors,
-        k: Optional[int] = 50,
-        min_grade: Optional[float] = 0.75,
+        k: Optional[int] = 10,
+        min_grade: Optional[float] = 0.8,
         max_len_diff: Optional[int] = 5,
         max_edit_distance: Optional[int] = 2,
     ):
