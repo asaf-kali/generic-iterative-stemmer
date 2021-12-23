@@ -9,15 +9,15 @@ from typing import List, Optional
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from . import (
-    MissingIterationFolderError,
-    StemDict,
-    StemDictGenerator,
-    StemmingTrainerError,
-    reduce_stem_dict,
+from ...errors import StemmingTrainerError
+from ...models import (
+    StemmedKeyedVectors,
+    get_model_path,
+    get_stem_dict_path_from_model_path,
+    save_stem_dict,
 )
-from ...models.stemmed_keyed_vectors import STEM_DICT_FILE_SUFFIX, StemmedKeyedVectors
 from ...utils import measure_time
+from . import StemDict, StemDictGenerator, reduce_stem_dict
 
 log = logging.getLogger(__name__)
 
@@ -51,17 +51,8 @@ def get_corpus_path(base_folder: str) -> str:
     return os.path.join(base_folder, "corpus.txt")
 
 
-def get_model_path(base_folder: str) -> str:
-    return os.path.join(base_folder, "model.kv")
-
-
 def get_stats_path(base_folder: str) -> str:
     return os.path.join(base_folder, "stats.json")
-
-
-def get_stem_dict_path(base_folder: str) -> str:
-    model_path = get_model_path(base_folder)
-    return f"{model_path}.{STEM_DICT_FILE_SUFFIX}"
 
 
 def get_stemming_trainer_state_path(base_folder: str) -> str:
@@ -215,7 +206,7 @@ class StemmingTrainer:
         return [os.path.join(self.corpus_folder, folder_name) for folder_name in self.iteration_folders_names]
 
     @measure_time
-    def train(self, save_stem_dict: bool = True):
+    def train(self, save_stem_dict_when_done: bool = True):
         log.info("Starting stemmer iterations training...")
         while True:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
@@ -228,7 +219,7 @@ class StemmingTrainer:
             if iteration_stats.stem_dict_size == 0:
                 log.info("Iteration ended with no stemming, quitting.")
                 break
-        if save_stem_dict:
+        if save_stem_dict_when_done:
             self.save_stem_dict()
 
     @measure_time
@@ -254,7 +245,7 @@ class StemmingTrainer:
     def save_state(self):
         state_path = get_stemming_trainer_state_path(self.corpus_folder)
         with open(state_path, "w") as state_file:
-            serialized = json.dumps(self.state, indent=2)
+            serialized = json.dumps(self.state, indent=2, ensure_ascii=False)
             state_file.write(serialized)
 
     def collect_complete_stem_dict(self) -> StemDict:
@@ -274,26 +265,19 @@ class StemmingTrainer:
     def last_completed_iteration_folder(self) -> str:
         if self.completed_iterations < 1:
             raise StemmingTrainerError("No completed iterations yet.")
-        iteration_folders = self.iteration_folders_paths
-        if len(iteration_folders) < 1:
-            raise MissingIterationFolderError()
-        if self.is_fully_stemmed:
-            return iteration_folders[-1]
-        if len(iteration_folders) < 2:
-            raise MissingIterationFolderError()
-        return iteration_folders[-2]
+        return get_iteration_folder(self.corpus_folder, iteration_number=self.completed_iterations)
 
     def save_stem_dict(self):
         if self.completed_iterations == 0:
             log.info("No iterations completed, skipping save.")
             return
         stem_dict = self.collect_complete_stem_dict()
-        stem_dict_path = get_stem_dict_path(self.last_completed_iteration_folder)
-        with open(stem_dict_path, "w") as file:
-            serialized = json.dumps(stem_dict, indent=2, ensure_ascii=False)
-            file.write(serialized)
-        log.debug(f"Stem dict saved: {stem_dict_path}.")
+        model_path = get_model_path(self.last_completed_iteration_folder)
+        save_stem_dict(stem_dict=stem_dict, model_path=model_path)
 
     def get_stemmed_keyed_vectors(self) -> StemmedKeyedVectors:
-        model_path = get_model_path(self.last_completed_iteration_folder)
-        return StemmedKeyedVectors.load(model_path)
+        model_path = get_model_path(base_folder=self.last_completed_iteration_folder)
+        stem_dict_path = get_stem_dict_path_from_model_path(model_path=model_path)
+        if not os.path.exists(stem_dict_path):
+            self.save_stem_dict()
+        return StemmedKeyedVectors.load(fname=model_path)

@@ -4,15 +4,28 @@ import shutil
 from typing import Set
 from unittest import TestCase
 
-from generic_iterative_stemmer.training import Word2VecStemmingTrainer
-from generic_iterative_stemmer.training.stemming.stemming_trainer import (
-    get_model_path,
-    get_stats_path,
-    get_stem_dict_path,
+import pytest
+
+from generic_iterative_stemmer.errors import StemmingTrainerError
+from generic_iterative_stemmer.models import get_model_path
+from generic_iterative_stemmer.models.stemmed_keyed_vectors import (
+    StemmedKeyedVectors,
+    get_stem_dict_path_from_iteration_folder,
 )
+from generic_iterative_stemmer.training import Word2VecStemmingTrainer
+from generic_iterative_stemmer.training.stemming.stemming_trainer import get_stats_path
 from generic_iterative_stemmer.utils import get_path
 
 TEST_CORPUS_FOLDER = "./tests/data/small"
+
+
+def assert_skv_sanity(skv: StemmedKeyedVectors, fully_stemmed: bool = True):
+    model_vocab = set(skv.key_to_index.keys())
+    stemmed_words = set(skv.stem_dict.keys())
+    for stemmed_word in stemmed_words:
+        if fully_stemmed:
+            assert stemmed_word not in model_vocab
+        assert skv[stemmed_word] is not None
 
 
 class TestWord2VecStemmerIntegration(TestCase):
@@ -48,7 +61,7 @@ class TestWord2VecStemmerIntegration(TestCase):
         assert loaded_trainer.completed_iterations == 3
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
 
-    def test_stemmed_words_do_not_repeat(self):
+    def test_stemmed_words_do_not_appear_in_more_then_one_iteration(self):
         trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=5)
         trainer.train()
 
@@ -67,7 +80,7 @@ class TestWord2VecStemmerIntegration(TestCase):
             stemmed_words.update(iteration_stemmed_words)
 
         # TODO: This is actually a different test.
-        stem_dict_path = get_stem_dict_path(trainer.last_completed_iteration_folder)
+        stem_dict_path = get_stem_dict_path_from_iteration_folder(trainer.last_completed_iteration_folder)
         with open(stem_dict_path) as file:
             completed_stem_dict = json.load(file)
 
@@ -91,8 +104,22 @@ class TestWord2VecStemmerIntegration(TestCase):
         trainer.train()
 
         kv = trainer.get_stemmed_keyed_vectors()
-        model_vocab = set(kv.key_to_index.keys())
-        stemmed_words = set(kv.stem_dict.keys())
-        for stemmed_word in stemmed_words:
-            assert stemmed_word not in model_vocab
-            assert kv[stemmed_word] is not None
+        assert_skv_sanity(kv)
+
+    def test_get_stemmed_keyed_vectors_when_stem_dict_is_not_saved(self):
+        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=1)
+        trainer.train(save_stem_dict_when_done=False)
+
+        kv = trainer.get_stemmed_keyed_vectors()
+        assert_skv_sanity(kv, fully_stemmed=False)
+
+    def test_last_completed_iteration_folder(self):
+        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder)
+        with pytest.raises(StemmingTrainerError):
+            _ = trainer.last_completed_iteration_folder
+
+        trainer.run_iteration()
+        assert trainer.last_completed_iteration_folder.endswith("iter-1")
+
+        trainer.run_iteration()
+        assert trainer.last_completed_iteration_folder.endswith("iter-2")
