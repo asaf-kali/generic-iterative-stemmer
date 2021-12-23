@@ -57,11 +57,13 @@ def reduce_stem_dict(stem_dict: StemDict) -> StemDict:
 def _reduce_iteration(stem_dict: StemDict, reduced_dict: StemDict, word_to_reduce: str):
     representative = stem_dict.pop(word_to_reduce)
     if representative in stem_dict:
-        # Meaning the representative itself can be reduced
+        # Meaning representative itself can be reduced
         _reduce_iteration(stem_dict, reduced_dict, word_to_reduce=representative)
     if representative in reduced_dict:
-        # Meaning we know representative is reduced
-        reduced_dict[word_to_reduce] = reduced_dict[representative]
+        # Meaning representative points to the most reduced
+        reduced = reduced_dict[representative]
     else:
-        # Meaning this is the edge of a chain
-        reduced_dict[word_to_reduce] = representative
+        # Meaning representative is the edge of a chain
+        reduced = representative
+    if word_to_reduce != reduced:
+        reduced_dict[word_to_reduce] = reduced
