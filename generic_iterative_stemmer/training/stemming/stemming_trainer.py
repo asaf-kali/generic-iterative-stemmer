@@ -4,7 +4,7 @@ import os.path
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from gensim.models import KeyedVectors
 from tqdm import tqdm
@@ -85,13 +85,19 @@ class StemmingIterationTrainer:
     """
 
     def __init__(
-        self, trainer: "StemmingTrainer", iteration_number: int, corpus_folder: str, base_model: KeyedVectors = None
+        self,
+        trainer: "StemmingTrainer",
+        iteration_number: int,
+        corpus_folder: str,
+        base_model: KeyedVectors = None,
+        stem_dict_generator_class: Type[StemDictGenerator] = StemDictGenerator,
     ):
         self.trainer = trainer
         self.iteration_number = iteration_number
         self.corpus_folder = corpus_folder
         self.model = base_model
         self.stats = StemmingIterationStats()
+        self.stem_dict_generator_class = stem_dict_generator_class
 
     @property
     def iteration_folder(self) -> str:
@@ -135,7 +141,7 @@ class StemmingIterationTrainer:
 
     def generate_stem_dict(self) -> StemDict:
         # TODO: Allow inserting more args to the generator.
-        stem_generator = StemDictGenerator(model=self.model)
+        stem_generator = self.stem_dict_generator_class(model=self.model)
         return stem_generator.generate_model_stemming()
 
     def generate_stemmed_corpus(self):
@@ -164,12 +170,14 @@ class StemmingTrainer:
     def __init__(
         self,
         corpus_folder: str,
+        stem_dict_generator_class: Type[StemDictGenerator] = StemDictGenerator,
         completed_iterations: int = 0,
         latest_model: Optional[KeyedVectors] = None,
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
     ):
         self.corpus_folder = corpus_folder
+        self.stem_dict_generator_class = stem_dict_generator_class  # TODO: This can't be serialized and loaded.
         self.completed_iterations = completed_iterations
         self.latest_model = latest_model  # TODO: Think about that field.
         self.max_iterations = max_iterations
@@ -233,6 +241,7 @@ class StemmingTrainer:
             iteration_number=self.completed_iterations + 1,
             corpus_folder=self.corpus_folder,
             base_model=self.latest_model,
+            stem_dict_generator_class=self.stem_dict_generator_class,
         )
         iteration_stats = iteration_trainer.run_stemming_iteration()
         self.completed_iterations += 1
