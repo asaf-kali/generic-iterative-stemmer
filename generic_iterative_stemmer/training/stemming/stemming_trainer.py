@@ -16,7 +16,7 @@ from ...models import (
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import measure_time
+from ...utils import loader, measure_time
 from . import StemDict, StemDictGenerator, reduce_stem_dict
 
 log = logging.getLogger(__name__)
@@ -119,14 +119,16 @@ class StemmingIterationTrainer:
     def iteration_trained_model_path(self) -> str:
         return get_model_path(self.iteration_folder)
 
-    @property
-    def has_trained_model(self) -> bool:
-        return self.model is not None
+    def _try_load_trained_model(self) -> Optional[KeyedVectors]:
+        model_path = self.iteration_trained_model_path
+        if os.path.exists(model_path):
+            return loader.load_kv(model_path)
+        return None
 
     def run_stemming_iteration(self) -> StemmingIterationStats:
         log.info(f"Running stemming iteration number {self.iteration_number}.")
-        if not self.has_trained_model:
-            # TODO: First, try loading it
+        self.model = self._try_load_trained_model()
+        if not self.model:
             self.model = self.train_model()
         self.generate_stemmed_corpus()
         log.info(f"Stemming iteration {self.iteration_number} completed.")

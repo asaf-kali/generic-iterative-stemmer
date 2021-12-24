@@ -6,13 +6,15 @@ import pytest
 from stemming.stemmer_test import StemmerIntegrationTest
 
 from generic_iterative_stemmer.errors import StemmingTrainerError
-from generic_iterative_stemmer.models import get_model_path
-from generic_iterative_stemmer.models.stemmed_keyed_vectors import (
+from generic_iterative_stemmer.models import (
     StemmedKeyedVectors,
+    get_model_path,
     get_stem_dict_path_from_iteration_folder,
 )
-from generic_iterative_stemmer.training import Word2VecStemmingTrainer
-from generic_iterative_stemmer.training.stemming.stemming_trainer import get_stats_path
+from generic_iterative_stemmer.training.stemming import (
+    Word2VecStemmingTrainer,
+    get_stats_path,
+)
 
 
 def assert_skv_sanity(skv: StemmedKeyedVectors, fully_stemmed: bool = True):

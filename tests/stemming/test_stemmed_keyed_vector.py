@@ -9,7 +9,7 @@ from generic_iterative_stemmer.models import (
     get_model_path,
     get_stem_dict_path_from_model_path,
 )
-from generic_iterative_stemmer.training import Word2VecStemmingTrainer
+from generic_iterative_stemmer.training.stemming import Word2VecStemmingTrainer
 
 
 class TestStemmedKeyedVector(StemmerIntegrationTest):
