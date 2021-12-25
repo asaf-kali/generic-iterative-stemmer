@@ -46,6 +46,7 @@ class StemDictGenerator:
                     continue
             if self.max_len_diff and abs(len(word) - len(candidate)) > self.max_len_diff:
                 continue
+            # TODO: check which is more common (model.key_to_index) and only replace if word is more common?
             inflections.append(candidate)
         return inflections
 

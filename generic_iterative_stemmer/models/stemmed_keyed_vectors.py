@@ -29,7 +29,7 @@ def save_stem_dict(stem_dict: dict, model_path: str):
     with open(stem_dict_path, "w") as file:
         serialized = json.dumps(stem_dict, indent=2, ensure_ascii=False)
         file.write(serialized)
-    log.debug(f"Stem dict saved: {model_path}.")
+    log.debug(f"Stem dict saved: {stem_dict_path}.")
 
 
 class StemmedKeyedVectors(KeyedVectors):
