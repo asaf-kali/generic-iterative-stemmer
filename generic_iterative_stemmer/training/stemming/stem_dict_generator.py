@@ -1,11 +1,12 @@
 import logging
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, Optional
 
 import editdistance
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
 from ...utils import measure_time
+from ...utils.async_task_manager import AsyncTaskManager
 
 log = logging.getLogger(__name__)
 
@@ -27,12 +28,12 @@ class StemDictGenerator:
         self.max_len_diff = max_len_diff
         self.max_edit_distance = max_edit_distance
 
-    def find_word_inflections(self, word: str) -> List[str]:
+    def find_word_inflections(self, word: str) -> StemDict:
         """
         Find which other words in the vocabulary can be stemmed down to this word.
         """
         similarities = self.model.most_similar(word, topn=self.k)
-        inflections = []
+        stem_dict = {}
         for candidate, grade in similarities:
             if grade < self.min_cosine_similarity:
                 continue
@@ -47,19 +48,22 @@ class StemDictGenerator:
             if self.max_len_diff and abs(len(word) - len(candidate)) > self.max_len_diff:
                 continue
             # TODO: check which is more common (model.key_to_index) and only replace if word is more common?
-            inflections.append(candidate)
-        return inflections
+            stem_dict[candidate] = word
+        return stem_dict
 
     @measure_time
     def generate_model_stemming(self, vocabulary: Iterable[str] = None):
         if vocabulary is None:
             vocabulary = self.model.key_to_index.keys()
+        log.info("Generating stem dict for words...")
         model_stem_dict = {}
-        log.info("Generating stem dict...")
-        for word in tqdm(vocabulary):
-            inflections = self.find_word_inflections(word=word)
-            for inflection in inflections:
-                model_stem_dict[inflection] = word
+        task_manager = AsyncTaskManager(workers_amount=5)
+        log.debug("Appending stemming tasks...")
+        for word in vocabulary:
+            task_manager.add_task(self.find_word_inflections, args=(word,))
+        log.debug("Collecting stemming results...")
+        for result in tqdm(task_manager, total=task_manager.total_task_count):
+            model_stem_dict.update(result)
         log.info(f"Total {len(model_stem_dict)} stems generated")
         reduced_dict = reduce_stem_dict(stem_dict=model_stem_dict)
         return reduced_dict

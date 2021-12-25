@@ -1,14 +1,14 @@
 from queue import Queue
 from threading import Thread
-from typing import Optional, Callable, Iterable, Mapping, Any
+from typing import Any, Callable, Iterable, Mapping, Optional
 
 
 class AsyncTaskManager:
     def __init__(self, workers_amount: int = 5, iter_timeout: Optional[float] = 3):
         super().__init__()
         self.iter_timeout = iter_timeout
-        self._task_queue = Queue()
-        self._result_queue = Queue()
+        self._task_queue: Queue = Queue()
+        self._result_queue: Queue = Queue()
         self._total_task_count = 0
         self.start_workers(workers_amount)
 
