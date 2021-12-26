@@ -177,6 +177,7 @@ class StemmingTrainer:
         latest_model: Optional[KeyedVectors] = None,
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
+        min_change_count: int = 0,
     ):
         self.corpus_folder = corpus_folder
         self.stem_dict_generator_class = stem_dict_generator_class  # TODO: This can't be serialized and loaded.
@@ -184,6 +185,7 @@ class StemmingTrainer:
         self.latest_model = latest_model  # TODO: Think about that field.
         self.max_iterations = max_iterations
         self.is_fully_stemmed = is_fully_stemmed
+        self.min_change_count = min_change_count
 
     @classmethod
     def load_from_state_file(cls, corpus_folder: str, **kwargs) -> "StemmingTrainer":
@@ -226,8 +228,9 @@ class StemmingTrainer:
                 log.info("Already fully stemmed, quitting.")
                 break
             iteration_stats = self.run_iteration()
-            if iteration_stats.stem_dict_size == 0:
-                log.info("Iteration ended with no stemming, quitting.")
+            if iteration_stats.stem_dict_size <= self.min_change_count:
+                log.info(f"Iteration ended with no more then {self.min_change_count} stems, quitting.")
+                self.is_fully_stemmed = True
                 break
         if save_stem_dict_when_done:
             self.save_stem_dict()
@@ -248,8 +251,6 @@ class StemmingTrainer:
         iteration_stats = iteration_trainer.run_stemming_iteration()
         self.completed_iterations += 1
         self.latest_model = None
-        if iteration_stats.stem_dict_size == 0:
-            self.is_fully_stemmed = True
         self.save_state()
         return iteration_stats
 
