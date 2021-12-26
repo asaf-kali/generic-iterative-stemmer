@@ -45,9 +45,9 @@ class StemmedKeyedVectors(KeyedVectors):
         # TODO: Validate stem_dict is reduced
         super().__init__(vector_size=vector_size, count=count, dtype=dtype, mapfile_path=mapfile_path)
 
-    def __getitem__(self, item):
-        stem = self.stem_dict.get(item, item)
-        return super().__getitem__(stem)
+    def get_vector(self, key, norm=False):
+        stem = self.stem_dict.get(key, key)
+        return super().get_vector(stem, norm=norm)
 
     @classmethod
     def from_keyed_vectors(cls, stem_dict: dict, kv: KeyedVectors) -> "StemmedKeyedVectors":
