@@ -92,11 +92,13 @@ class TestStemmingTrainersIntegration:
     #         assert os.path.exists(stats_path)
 
     def test_get_stemmed_keyed_vectors(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=None)
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder, max_iterations=None, min_change_count=10
+        )
         trainer.train()
 
         kv = trainer.get_stemmed_keyed_vectors()
-        assert_skv_sanity(kv)
+        assert_skv_sanity(kv, is_fully_stemmed=False)
 
     def test_get_stemmed_keyed_vectors_when_stem_dict_is_not_saved(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
