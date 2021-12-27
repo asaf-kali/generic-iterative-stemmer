@@ -38,7 +38,7 @@ class TestStemmingTrainersIntegration:
     def test_load_trainer_from_state_sanity(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=2, min_change_count=10)
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=2)
         trainer.train()
 
         loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_corpus_folder)
@@ -52,7 +52,7 @@ class TestStemmingTrainersIntegration:
     def test_stemmed_words_do_not_appear_in_more_then_one_iteration(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=5, min_change_count=10)
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=5)
         trainer.train()
 
         assert trainer.completed_iterations > 1
@@ -78,7 +78,7 @@ class TestStemmingTrainersIntegration:
 
     # def test_no_stemmed_corpus_is_generated_when_stemming_is_complete(self, trainer_class: Type[StemmingTrainer]):
     #     trainer = trainer_class(
-    #         corpus_folder=self.test_corpus_folder, max_iterations=None, min_change_count=10
+    #         corpus_folder=self.test_corpus_folder, max_iterations=None
     #     )
     #     trainer.train()
     #
@@ -92,9 +92,7 @@ class TestStemmingTrainersIntegration:
     #         assert os.path.exists(stats_path)
 
     def test_get_stemmed_keyed_vectors(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
-        trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder, max_iterations=None, min_change_count=10
-        )
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=None)
         trainer.train()
 
         kv = trainer.get_stemmed_keyed_vectors()
@@ -112,7 +110,7 @@ class TestStemmingTrainersIntegration:
     def test_last_completed_iteration_folder(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, min_change_count=10)
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder)
         with pytest.raises(StemmingTrainerError):
             _ = trainer.last_completed_iteration_folder
 

@@ -27,8 +27,8 @@ class CorpusResource:
 
 
 @pytest.fixture
-def corpus_resource():
+def corpus_resource() -> CorpusResource:
     corpus_name = "small"
     resource = CorpusResource(corpus_name)
-    yield resource
     resource.reset_corpus_folder()
+    return resource
