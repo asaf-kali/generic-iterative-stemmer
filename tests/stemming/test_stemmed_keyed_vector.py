@@ -1,7 +1,7 @@
 import os.path
 
 import pytest
-from stemming.stemmer_test import StemmerIntegrationTest
+from stemming.conftest import CorpusResource
 
 from generic_iterative_stemmer.errors import StemDictFileNotFoundError
 from generic_iterative_stemmer.models import (
@@ -12,9 +12,9 @@ from generic_iterative_stemmer.models import (
 from generic_iterative_stemmer.training.stemming import Word2VecStemmingTrainer
 
 
-class TestStemmedKeyedVector(StemmerIntegrationTest):
-    def test_skv_is_not_loaded_without_stem_dict(self):
-        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=1)
+class TestStemmedKeyedVector:
+    def test_skv_is_not_loaded_without_stem_dict(self, corpus_resource: CorpusResource):
+        trainer = Word2VecStemmingTrainer(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=1)
         trainer.train()
 
         model_path = get_model_path(base_folder=trainer.last_completed_iteration_folder)

@@ -1,16 +1,23 @@
 import json
+import logging
 import os
-from typing import Set
+from typing import Set, Type
 
 import pytest
-from stemming.stemmer_test import StemmerIntegrationTest
+from stemming.conftest import CorpusResource
 
 from generic_iterative_stemmer.errors import StemmingTrainerError
 from generic_iterative_stemmer.models import (
     StemmedKeyedVectors,
     get_stem_dict_path_from_iteration_folder,
 )
-from generic_iterative_stemmer.training.stemming import Word2VecStemmingTrainer
+from generic_iterative_stemmer.training.stemming import (
+    FastTextStemmingTrainer,
+    StemmingTrainer,
+    Word2VecStemmingTrainer,
+)
+
+log = logging.getLogger(__name__)
 
 
 def assert_skv_sanity(skv: StemmedKeyedVectors, is_fully_stemmed: bool = True):
@@ -26,12 +33,15 @@ def assert_skv_sanity(skv: StemmedKeyedVectors, is_fully_stemmed: bool = True):
         assert present_words_count < len(stemmed_words) / 3
 
 
-class TestWord2VecStemmerIntegration(StemmerIntegrationTest):
-    def test_load_trainer_from_state_sanity(self):
-        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=2, min_change_count=10)
+@pytest.mark.parametrize("trainer_class", [Word2VecStemmingTrainer, FastTextStemmingTrainer])
+class TestStemmingTrainersIntegration:
+    def test_load_trainer_from_state_sanity(
+        self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
+    ):
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=2, min_change_count=10)
         trainer.train()
 
-        loaded_trainer = Word2VecStemmingTrainer.load_from_state_file(self.test_corpus_folder)
+        loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_corpus_folder)
         assert loaded_trainer.completed_iterations == 2
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
 
@@ -39,8 +49,10 @@ class TestWord2VecStemmerIntegration(StemmerIntegrationTest):
         assert loaded_trainer.completed_iterations == 3
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
 
-    def test_stemmed_words_do_not_appear_in_more_then_one_iteration(self):
-        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=5, min_change_count=10)
+    def test_stemmed_words_do_not_appear_in_more_then_one_iteration(
+        self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
+    ):
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=5, min_change_count=10)
         trainer.train()
 
         assert trainer.completed_iterations > 1
@@ -64,8 +76,8 @@ class TestWord2VecStemmerIntegration(StemmerIntegrationTest):
 
         assert len(completed_stem_dict) == len(stemmed_words)
 
-    # def test_no_stemmed_corpus_is_generated_when_stemming_is_complete(self):
-    #     trainer = Word2VecStemmingTrainer(
+    # def test_no_stemmed_corpus_is_generated_when_stemming_is_complete(self, trainer_class: Type[StemmingTrainer]):
+    #     trainer = trainer_class(
     #         corpus_folder=self.test_corpus_folder, max_iterations=None, min_change_count=10
     #     )
     #     trainer.train()
@@ -79,24 +91,28 @@ class TestWord2VecStemmerIntegration(StemmerIntegrationTest):
     #         assert os.path.exists(model_path)
     #         assert os.path.exists(stats_path)
 
-    def test_get_stemmed_keyed_vectors(self):
-        trainer = Word2VecStemmingTrainer(
-            corpus_folder=self.test_corpus_folder, max_iterations=None, min_change_count=10
+    def test_get_stemmed_keyed_vectors(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder, max_iterations=None, min_change_count=10
         )
         trainer.train()
 
         kv = trainer.get_stemmed_keyed_vectors()
         assert_skv_sanity(kv)
 
-    def test_get_stemmed_keyed_vectors_when_stem_dict_is_not_saved(self):
-        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, max_iterations=1)
+    def test_get_stemmed_keyed_vectors_when_stem_dict_is_not_saved(
+        self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
+    ):
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=1)
         trainer.train(save_stem_dict_when_done=False)
 
         kv = trainer.get_stemmed_keyed_vectors()
         assert_skv_sanity(kv, is_fully_stemmed=False)
 
-    def test_last_completed_iteration_folder(self):
-        trainer = Word2VecStemmingTrainer(corpus_folder=self.test_corpus_folder, min_change_count=10)
+    def test_last_completed_iteration_folder(
+        self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
+    ):
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, min_change_count=10)
         with pytest.raises(StemmingTrainerError):
             _ = trainer.last_completed_iteration_folder
 
