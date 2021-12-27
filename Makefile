@@ -1,3 +1,5 @@
+.PHONY: tests
+
 LINE_LENGTH=120
 
 install:
@@ -19,3 +21,6 @@ check-lint:
 	isort . --profile black --check --skip __init__.py
 	mypy . --ignore-missing-imports
 	flake8 . --max-line-length=$(LINE_LENGTH)
+
+tests:
+	python -m pytest
