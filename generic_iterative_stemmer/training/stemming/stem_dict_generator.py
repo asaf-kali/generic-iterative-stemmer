@@ -17,14 +17,16 @@ class StemDictGenerator:
     def __init__(
         self,
         model: KeyedVectors,
-        k: Optional[int] = 15,
-        min_cosine_similarity: Optional[float] = 0.65,
+        k: Optional[int] = 10,
+        min_cosine_similarity: Optional[float] = 0.75,
+        min_cosine_similarity_for_edit_distance: Optional[float] = 0.8,
         max_len_diff: Optional[int] = 3,
         max_edit_distance: Optional[int] = 1,
     ):
         self.model = model
         self.k = k
         self.min_cosine_similarity = min_cosine_similarity
+        self.min_cosine_similarity_for_edit_distance = min_cosine_similarity_for_edit_distance
         self.max_len_diff = max_len_diff
         self.max_edit_distance = max_edit_distance
 
@@ -44,6 +46,8 @@ class StemDictGenerator:
                     continue
                 edit_distance = editdistance.eval(word, candidate)
                 if edit_distance > self.max_edit_distance:
+                    continue
+                if grade < self.min_cosine_similarity_for_edit_distance:
                     continue
             if self.max_len_diff and abs(len(word) - len(candidate)) > self.max_len_diff:
                 continue
