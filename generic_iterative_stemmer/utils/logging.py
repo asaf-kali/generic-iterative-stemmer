@@ -19,50 +19,59 @@ class LevelRangeFilter(Filter):
 
 
 log = logging.getLogger(__name__)
-LOGGING_CONFIG = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {
-            "format": "[%(asctime)s] %(message)s [%(name)s]",
-            "datefmt": "%H:%M:%S",
-        },
-        "debug": {
-            "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
-            "[%(threadName)s] [%(name)s:%(lineno)s]",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-    },
-    "filters": {
-        "std_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "high": logging.WARNING},
-        "err_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "low": logging.WARNING},
-    },
-    "handlers": {
-        "console_out": {
-            "class": "logging.StreamHandler",
-            "filters": ["std_filter"],
-            "formatter": "simple",
-            "stream": sys.stdout,
-        },
-        "console_err": {
-            "class": "logging.StreamHandler",
-            "filters": ["err_filter"],
-            "formatter": "debug",
-            "stream": sys.stderr,
-        },
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": "run.log",
-            "formatter": "debug",
-        },
-    },
-    "root": {"handlers": ["console_out", "console_err", "file"], "level": "DEBUG"},
-    "loggers": {"gensim": {"level": "INFO"}, "smart_open": {"level": "WARN"}},
-}
 
 
-def configure_logging():
-    dictConfig(LOGGING_CONFIG)
+def get_logging_config(formatter: str = None, level: str = None) -> dict:
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "simple": {
+                "format": "[%(asctime)s] %(message)s [%(name)s]",
+                "datefmt": "%H:%M:%S",
+            },
+            "debug": {
+                "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
+                "[%(threadName)s] [%(name)s:%(lineno)s]",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+            "test": {
+                "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s "
+                "[%(threadName)s] [%(name)s:%(lineno)s]",
+                "datefmt": "%H:%M:%S",
+            },
+        },
+        "filters": {
+            "std_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "high": logging.WARNING},
+            "err_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "low": logging.WARNING},
+        },
+        "handlers": {
+            "console_out": {
+                "class": "logging.StreamHandler",
+                "filters": ["std_filter"],
+                "formatter": formatter or "simple",
+                "stream": sys.stdout,
+            },
+            "console_err": {
+                "class": "logging.StreamHandler",
+                "filters": ["err_filter"],
+                "formatter": formatter or "debug",
+                "stream": sys.stderr,
+            },
+            "file": {
+                "class": "logging.FileHandler",
+                "filename": "run.log",
+                "formatter": formatter or "debug",
+            },
+        },
+        "root": {"handlers": ["console_out", "console_err", "file"], "level": level or "DEBUG"},
+        "loggers": {"gensim": {"level": "INFO"}, "smart_open": {"level": "WARN"}},
+    }
+
+
+def configure_logging(formatter: str = None, level: str = None):
+    config = get_logging_config(formatter=formatter, level=level)
+    dictConfig(config)
     log.debug("Logging configured")
 
 

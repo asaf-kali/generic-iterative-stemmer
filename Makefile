@@ -22,5 +22,5 @@ check-lint:
 	mypy . --ignore-missing-imports
 	flake8 . --max-line-length=$(LINE_LENGTH)
 
-tests:
-	python -m pytest
+test:
+	python -m pytest -s

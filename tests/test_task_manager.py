@@ -5,11 +5,9 @@ from time import sleep
 
 import pytest
 
-from generic_iterative_stemmer.utils import configure_logging
 from generic_iterative_stemmer.utils.async_task_manager import AsyncTaskManager
 
 log = logging.getLogger(__name__)
-configure_logging()
 
 
 def dummy_task(x: int, duration: float = None):

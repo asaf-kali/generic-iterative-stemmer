@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      - name: Set Swap Space
+      - name: Set swap space
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
@@ -22,4 +22,4 @@ jobs:
           make install
       - name: Run tests
         run: |
-          make tests
+          make test
