@@ -38,16 +38,16 @@ class TestStemmingTrainersIntegration:
     def test_load_trainer_from_state_sanity(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=2)
+        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=1)
         trainer.train()
 
         loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_corpus_folder)
-        assert loaded_trainer.completed_iterations == 2
-        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
+        assert loaded_trainer.completed_iterations == 1
+        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2"]
 
         loaded_trainer.run_iteration()
-        assert loaded_trainer.completed_iterations == 3
-        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3", "iter-4"]
+        assert loaded_trainer.completed_iterations == 2
+        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
 
     def test_stemmed_words_do_not_appear_in_more_then_one_iteration(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
