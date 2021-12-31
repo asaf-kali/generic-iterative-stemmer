@@ -8,6 +8,5 @@ gensim~=4.1
 fasttext~=0.9
 editdistance~=0.6
 
-# Working
-jupyter~=1.0
+# Utils
 tqdm~=4.62
