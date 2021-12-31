@@ -6,11 +6,6 @@ install:
 	pip install --upgrade pip
 	pip install -r requirements.txt -r requirements-dev.txt
 
-commit:
-	git add .
-	git commit -m "Auto commit"
-	git push
-
 lint:
 	black . -l $(LINE_LENGTH)
 	isort . --profile black --skip __init__.py
@@ -24,3 +19,18 @@ check-lint:
 
 test:
 	python -m pytest -s
+
+# Pypi
+
+build:
+	gio trash -f dist/
+	gio trash -f generic_iterative_stemmer.egg-info/
+	python setup.py sdist
+
+upload:
+	make build
+	twine upload dist/*
+
+upload-test:
+	make build
+	twine upload --repository testpypi dist/*

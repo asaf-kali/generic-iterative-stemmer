@@ -1,3 +1,6 @@
+# Working
+jupyter~=1.0
+
 # Testing
 pytest==6.2.5
 
@@ -7,3 +10,6 @@ black[jupyter]
 mypy==0.910
 flake8==4.0.1
 isort==5.10.1
+
+# Pypi
+twine~=3.7
