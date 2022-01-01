@@ -1,9 +1,7 @@
 import json
 import logging
 import os
-from typing import Optional
 
-import numpy as np
 from gensim.models import KeyedVectors
 
 from ..errors import StemDictFileNotFoundError
@@ -32,47 +30,37 @@ def save_stem_dict(stem_dict: dict, model_path: str):
     log.debug(f"Stem dict saved: {stem_dict_path}.")
 
 
-class StemmedKeyedVectors(KeyedVectors):
-    def __init__(
-        self,
-        stem_dict: dict,
-        vector_size: int,
-        count: Optional[int] = 0,
-        dtype: Optional[type] = np.float32,
-        mapfile_path: Optional[str] = None,
-    ):
+class StemmedKeyedVectors:
+    def __init__(self, kv: KeyedVectors, stem_dict: dict):
+        self.kv = kv
         self.stem_dict = stem_dict
-        # TODO: Validate stem_dict is reduced
-        super().__init__(vector_size=vector_size, count=count, dtype=dtype, mapfile_path=mapfile_path)
+        # TODO: Validate stem_dict is reduced?
+        # Override get_vector
+        self._inner_get_vector = self.kv.get_vector
+        self.kv.get_vector = self.get_vector
+
+    def __getattr__(self, item):
+        # This allows StemmedKeyedVectors to act like its underling KeyedVectors
+        return getattr(self.kv, item)
+
+    def __getitem__(self, item):
+        return self.kv.__getitem__(item)
 
     def get_vector(self, key, norm=False):
         stem = self.stem_dict.get(key, key)
-        return super().get_vector(stem, norm=norm)
+        return self._inner_get_vector(stem, norm=norm)
 
     @classmethod
-    def from_keyed_vectors(cls, stem_dict: dict, kv: KeyedVectors) -> "StemmedKeyedVectors":
-        model = cls(stem_dict, vector_size=kv.vector_size)
-        # This is pretty ugly, but it's working.
-        for key, value in kv.__dict__.items():
-            model.__dict__[key] = value
-        log.debug("StemmedKeyedVectors loaded.")
-        return model
-
-    @classmethod
-    def load(cls, fname: str, mmap=None):
-        kv: KeyedVectors = super().load(fname=fname, mmap=mmap)  # type: ignore
-        stem_dict_path = get_stem_dict_path_from_model_path(fname)
+    def load(cls, file_name: str, mmap=None):
+        kv: KeyedVectors = KeyedVectors.load(fname=file_name, mmap=mmap)  # type: ignore
+        stem_dict_path = get_stem_dict_path_from_model_path(file_name)
         try:
             with open(stem_dict_path) as file:
                 stem_dict = json.load(file)
         except FileNotFoundError as e:
             raise StemDictFileNotFoundError() from e
-        return StemmedKeyedVectors.from_keyed_vectors(stem_dict=stem_dict, kv=kv)
+        return StemmedKeyedVectors(kv=kv, stem_dict=stem_dict)
 
-    def save(self, fname: str, *args, **kwargs):
-        super().save(fname, *args, **kwargs)
-        save_stem_dict(self.stem_dict, fname)
-
-    def similarity_unseen_docs(self, *args, **kwargs):
-        # This is here just so that pycharm won't mark this class as abstract.
-        return super().similarity_unseen_docs(*args, **kwargs)
+    def save(self, file_name: str, *args, **kwargs):
+        self.kv.save(file_name, *args, **kwargs)
+        save_stem_dict(self.stem_dict, file_name)

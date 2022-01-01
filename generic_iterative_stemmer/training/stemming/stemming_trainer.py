@@ -292,4 +292,4 @@ class StemmingTrainer:
         stem_dict_path = get_stem_dict_path_from_model_path(model_path=model_path)
         if not os.path.exists(stem_dict_path):
             self.save_stem_dict()
-        return StemmedKeyedVectors.load(fname=model_path)
+        return StemmedKeyedVectors.load(file_name=model_path)
