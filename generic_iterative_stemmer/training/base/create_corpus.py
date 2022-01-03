@@ -25,7 +25,7 @@ def _is_only_hebrew(token: str) -> bool:
     return HEBREW_PATTERN.fullmatch(token) is not None
 
 
-def _replace_suffix_letter(token: str) -> str:
+def _replace_to_non_suffix_letter(token: str) -> str:
     if not token.endswith(HEBREW_SUFFIX_LETTERS):
         return token
     suffix_letter = token[-1]
@@ -34,7 +34,7 @@ def _replace_suffix_letter(token: str) -> str:
 
 def hebrew_tokenizer(content: str, token_min_len: int, token_max_len: int, lower: bool = False) -> List[str]:
     tokens = gensim_tokenizer(content, token_min_len, token_max_len, lower)
-    hebrew_tokens = [_replace_suffix_letter(token) for token in tokens if _is_only_hebrew(token)]
+    hebrew_tokens = [_replace_to_non_suffix_letter(token) for token in tokens if _is_only_hebrew(token)]
     return hebrew_tokens
 
 
