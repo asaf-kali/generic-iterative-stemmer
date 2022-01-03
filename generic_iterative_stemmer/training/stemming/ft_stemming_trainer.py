@@ -16,9 +16,11 @@ class FastTextStemmingTrainer(StemmingTrainer):
 
 
 if __name__ == "__main__":
-    from generic_iterative_stemmer.utils import get_path
+    from generic_iterative_stemmer.utils import configure_logging, get_path
+
+    configure_logging()
 
     corpus_name = "wiki-he-fasttext"
     corpus_folder = get_path(corpus_name)
-    trainer = FastTextStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, completed_iterations=0)
+    trainer = FastTextStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, completed_iterations=2)
     trainer.train()
