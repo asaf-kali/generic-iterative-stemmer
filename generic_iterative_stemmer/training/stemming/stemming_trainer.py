@@ -63,6 +63,7 @@ def get_stemming_trainer_state_path(base_folder: str) -> str:
 class StemmingIterationStats:
     initial_vocab_size: Optional[int] = None
     stem_dict: Optional[dict] = None
+    stem_generator_params: Optional[dict] = None
 
     @property
     def stem_dict_size(self) -> int:
@@ -72,6 +73,7 @@ class StemmingIterationStats:
         return {
             "initial_vocab_size": self.initial_vocab_size,
             "stem_dict_size": self.stem_dict_size,
+            "stem_generator_params": self.stem_generator_params,
             "stem_dict": self.stem_dict,
         }
 
@@ -144,6 +146,7 @@ class StemmingIterationTrainer:
     def generate_stem_dict(self) -> StemDict:
         # TODO: Allow inserting more args to the generator.
         stem_generator = self.stem_dict_generator_class(model=self.model)
+        self.stats.stem_generator_params = stem_generator.params
         return stem_generator.generate_model_stemming()
 
     def generate_stemmed_corpus(self):

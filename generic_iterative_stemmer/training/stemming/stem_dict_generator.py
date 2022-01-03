@@ -57,6 +57,16 @@ class StemDictGenerator:
             stem_dict[candidate] = word
         return stem_dict
 
+    @property
+    def params(self) -> dict:
+        return {
+            "k": self.k,
+            "min_cosine_similarity": self.min_cosine_similarity,
+            "min_cosine_similarity_for_edit_distance": self.min_cosine_similarity_for_edit_distance,
+            "max_len_diff": self.max_len_diff,
+            "max_edit_distance": self.max_edit_distance,
+        }
+
     @measure_time
     def generate_model_stemming(self, vocabulary: Iterable[str] = None):
         if vocabulary is None:
