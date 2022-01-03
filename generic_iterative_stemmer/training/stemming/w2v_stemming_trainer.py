@@ -11,7 +11,9 @@ class Word2VecStemmingTrainer(StemmingTrainer):
 
 
 if __name__ == "__main__":
-    from generic_iterative_stemmer.utils import get_path
+    from generic_iterative_stemmer.utils import configure_logging, get_path
+
+    configure_logging()
 
     corpus_name = "wiki-he-cbow"
     corpus_folder = get_path(corpus_name)
