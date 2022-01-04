@@ -25,9 +25,11 @@ ITER_FOLDER_PATTERN = re.compile(r"iter-\d+")
 
 
 def stem_sentence(sentence: str, stem_dict: StemDict) -> str:
-    words = sentence.split(" ")
+    words = sentence.split()
     words_replaced = [stem_dict.get(word, word) for word in words]
     sentence_replaced = " ".join(words_replaced)
+    if sentence[-1] == "\n":
+        sentence_replaced += "\n"
     return sentence_replaced
 
 
@@ -35,7 +37,7 @@ def stem_sentence(sentence: str, stem_dict: StemDict) -> str:
 def stem_corpus(original_corpus_path: str, output_corpus_path: str, stem_dict: StemDict):
     log.info("Stemming corpus...")
     with open(original_corpus_path) as original_file, open(output_corpus_path, "w") as output_file:
-        for sentence in tqdm(original_file):
+        for sentence in tqdm(original_file, desc="Corpus stemming"):
             reduced_sentence = stem_sentence(sentence, stem_dict=stem_dict)
             output_file.write(reduced_sentence)
     log.info("Stemming corpus done")

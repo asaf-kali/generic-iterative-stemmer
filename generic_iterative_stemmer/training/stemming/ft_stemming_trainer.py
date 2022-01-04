@@ -22,5 +22,5 @@ if __name__ == "__main__":
 
     corpus_name = "wiki-he-fasttext"
     corpus_folder = get_path(corpus_name)
-    trainer = FastTextStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, completed_iterations=2)
+    trainer = FastTextStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, completed_iterations=0)
     trainer.train()
