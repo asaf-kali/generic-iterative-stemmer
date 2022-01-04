@@ -9,6 +9,14 @@ def test_stem_sentence():
     assert stemmed == expected
 
 
+def test_stem_sentence_on_last_word_in_hebrew_sentence():
+    sentence = " הוקמ בשנת קטגוריה הרכבימ מוזיקליימ מירושלימ\n"
+    stem_dict = {"מירושלימ": "ירושלימ"}
+    stemmed = stem_sentence(sentence=sentence, stem_dict=stem_dict)
+    expected = "הוקמ בשנת קטגוריה הרכבימ מוזיקליימ ירושלימ\n"
+    assert stemmed == expected
+
+
 def test_reduce_empty_stem_dict():
     assert reduce_stem_dict({}) == {}
 

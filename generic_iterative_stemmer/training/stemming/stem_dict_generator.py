@@ -78,7 +78,7 @@ class StemDictGenerator:
         for word in vocabulary:
             task_manager.add_task(self.find_word_inflections, args=(word,))
         log.debug("Collecting stemming results...")
-        for result in tqdm(task_manager, total=task_manager.total_task_count):
+        for result in tqdm(task_manager, total=task_manager.total_task_count, desc="Generate stem dict"):
             model_stem_dict.update(result)
         log.info(f"Total {len(model_stem_dict)} stems generated")
         reduced_dict = reduce_stem_dict(stem_dict=model_stem_dict)
