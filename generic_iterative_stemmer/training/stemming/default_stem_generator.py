@@ -12,7 +12,7 @@ class DefaultStemGenerator(StemGenerator):
         model: KeyedVectors,
         k: Optional[int] = 10,
         min_cosine_similarity: Optional[float] = 0.75,
-        min_cosine_similarity_for_edit_distance: Optional[float] = 0.8,
+        min_cosine_similarity_for_edit_distance: Optional[float] = 0.85,
         max_len_diff: Optional[int] = 3,
         max_edit_distance: Optional[int] = 1,
     ):
