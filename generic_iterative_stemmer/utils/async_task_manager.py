@@ -18,7 +18,7 @@ class AsyncTaskManager(ContextManager):
     Not that the manager itself is not thread safe - meaning it can be used only in a single thread.
     """
 
-    def __init__(self, workers_amount: int = 5, iter_timeout: Optional[float] = 3):
+    def __init__(self, workers_amount: int = 5, iter_timeout: Optional[float] = None):
         super().__init__()
         self.iter_timeout = iter_timeout
         self._task_queue: Queue = Queue()
