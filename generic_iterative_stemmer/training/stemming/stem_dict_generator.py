@@ -39,7 +39,7 @@ class StemDictGenerator:
         for candidate, grade in similarities:
             if grade < self.min_cosine_similarity:
                 continue
-            if len(candidate) < len(word):
+            if len(candidate) <= len(word):
                 continue
             if word not in candidate:
                 if self.max_edit_distance is None:
