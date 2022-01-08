@@ -16,6 +16,9 @@ from generic_iterative_stemmer.training.stemming import (
     StemmingTrainer,
     Word2VecStemmingTrainer,
 )
+from generic_iterative_stemmer.training.stemming.illegal_words_stemmer import (
+    IllegalWordsStemmer,
+)
 
 log = logging.getLogger(__name__)
 
@@ -135,3 +138,16 @@ class TestStemmingTrainersIntegration:
 
         trainer.run_iteration()
         assert trainer.last_completed_iteration_folder.endswith("iter-2")
+
+    def test_illegal_words_stemmer(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
+        legal_words = ["קוד", "פונקציה", "לינוקס", "פיתוח", "שפה"]
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder,
+            stem_generator_class=IllegalWordsStemmer,
+            stem_generator_params={"legal_words": legal_words},
+        )
+        trainer.train()
+
+        model = trainer.get_stemmed_keyed_vectors()
+        model_vocab = set(model.key_to_index.keys())
+        assert model_vocab == set(legal_words)

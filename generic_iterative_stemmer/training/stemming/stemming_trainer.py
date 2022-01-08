@@ -244,6 +244,7 @@ class StemmingTrainer:
                 break
         if save_stem_dict_when_done:
             self.save_stem_dict()
+        self.save_state()
 
     @measure_time
     def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
