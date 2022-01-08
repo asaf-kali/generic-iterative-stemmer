@@ -1,7 +1,6 @@
 import logging
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable
 
-import editdistance
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
@@ -13,64 +12,25 @@ log = logging.getLogger(__name__)
 StemDict = Dict[str, str]
 
 
-class StemDictGenerator:
-    def __init__(
-        self,
-        model: KeyedVectors,
-        k: Optional[int] = 10,
-        min_cosine_similarity: Optional[float] = 0.75,
-        min_cosine_similarity_for_edit_distance: Optional[float] = 0.75,
-        max_len_diff: Optional[int] = 3,
-        max_edit_distance: Optional[int] = 1,
-    ):
+class StemGenerator:
+    def __init__(self, model: KeyedVectors):
         self.model = model
-        self.k = k
-        self.min_cosine_similarity = min_cosine_similarity
-        self.min_cosine_similarity_for_edit_distance = min_cosine_similarity_for_edit_distance
-        self.max_len_diff = max_len_diff
-        self.max_edit_distance = max_edit_distance
 
     def find_word_inflections(self, word: str) -> StemDict:
         """
         Find which other words in the vocabulary can be stemmed down to this word.
         """
-        similarities = self.model.most_similar(word, topn=self.k)
-        stem_dict = {}
-        for candidate, grade in similarities:
-            if grade < self.min_cosine_similarity:
-                continue
-            if len(candidate) <= len(word):
-                continue
-            if word not in candidate:
-                if self.max_edit_distance is None:
-                    continue
-                edit_distance = editdistance.eval(word, candidate)
-                if edit_distance > self.max_edit_distance:
-                    continue
-                if grade < self.min_cosine_similarity_for_edit_distance:
-                    continue
-            if self.max_len_diff and abs(len(word) - len(candidate)) > self.max_len_diff:
-                continue
-            w2i = self.model.key_to_index
-            if w2i[candidate] < w2i[word]:
-                continue
-            stem_dict[candidate] = word
-        return stem_dict
+        raise NotImplementedError()
 
     @property
     def params(self) -> dict:
-        return {
-            "k": self.k,
-            "min_cosine_similarity": self.min_cosine_similarity,
-            "min_cosine_similarity_for_edit_distance": self.min_cosine_similarity_for_edit_distance,
-            "max_len_diff": self.max_len_diff,
-            "max_edit_distance": self.max_edit_distance,
-        }
+        """
+        Returns the parameters this StemGenerator is working with (for statistics purposes).
+        """
+        return {}
 
     @measure_time
-    def generate_model_stemming(self, vocabulary: Iterable[str] = None):
-        if vocabulary is None:
-            vocabulary = self.model.key_to_index.keys()
+    def generate_stemming_dict(self, vocabulary: Iterable[str]) -> StemDict:
         log.info("Generating stem dict for words...")
         model_stem_dict = {}
         task_manager = AsyncTaskManager(workers_amount=5)
