@@ -33,16 +33,24 @@ def assert_skv_sanity(skv: StemmedKeyedVectors, is_fully_stemmed: bool = True):
         assert present_words_count < len(stemmed_words) / 3
 
 
+STEM_GENERATOR_PARAMS = {"min_cosine_similarity": 0.5, "max_edit_distance": 4}
+
+
 @pytest.mark.parametrize("trainer_class", [Word2VecStemmingTrainer, FastTextStemmingTrainer])
 class TestStemmingTrainersIntegration:
     def test_load_trainer_from_state_sanity(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=1)
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder,
+            max_iterations=1,
+            stem_generator_params=STEM_GENERATOR_PARAMS,
+        )
         trainer.train()
 
         loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_corpus_folder)
         assert loaded_trainer.completed_iterations == 1
+        assert loaded_trainer.stem_generator_params == STEM_GENERATOR_PARAMS
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2"]
 
         loaded_trainer.run_iteration()
@@ -52,7 +60,11 @@ class TestStemmingTrainersIntegration:
     def test_stemmed_words_do_not_appear_in_more_then_one_iteration(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=5)
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder,
+            max_iterations=5,
+            stem_generator_params=STEM_GENERATOR_PARAMS,
+        )
         trainer.train()
 
         assert trainer.completed_iterations > 1
@@ -112,7 +124,9 @@ class TestStemmingTrainersIntegration:
     def test_last_completed_iteration_folder(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder)
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder, stem_generator_params=STEM_GENERATOR_PARAMS
+        )
         with pytest.raises(StemmingTrainerError):
             _ = trainer.last_completed_iteration_folder
 
