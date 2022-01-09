@@ -1,5 +1,5 @@
 import logging
-from queue import Queue
+import queue
 from threading import Thread
 from typing import Any, Callable, ContextManager, Iterable, Mapping, Optional
 
@@ -10,6 +10,19 @@ STOP_TASK = (
     STOP,
     STOP,
 )
+
+
+class Queue(queue.Queue):
+    def clear(self):
+        with self.mutex:
+            unfinished_tasks = self.unfinished_tasks - len(self.queue)
+            if unfinished_tasks <= 0:
+                if unfinished_tasks < 0:
+                    raise ValueError("task_done() called too many times")
+                self.all_tasks_done.notify_all()
+            self.unfinished_tasks = unfinished_tasks
+            self.queue.clear()
+            self.not_full.notify_all()
 
 
 class AsyncTaskManager(ContextManager):
@@ -42,7 +55,7 @@ class AsyncTaskManager(ContextManager):
         self.__del__()
 
     def __del__(self):
-        self.join()
+        self.kill()
 
     @property
     def is_work_done(self) -> bool:
@@ -108,6 +121,11 @@ class AsyncTaskManager(ContextManager):
         for i in range(amount):
             self._task_queue.put(STOP_TASK)
             self._workers_count -= 1
+
+    def kill(self):
+        log.debug(f"Removing all items from task queue (current size is {self._task_queue.qsize()})...")
+        self._task_queue.clear()
+        self.join()
 
     def join(self):
         log.debug("Joining all workers...")
