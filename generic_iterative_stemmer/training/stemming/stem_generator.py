@@ -13,8 +13,9 @@ StemDict = Dict[str, str]
 
 
 class StemGenerator:
-    def __init__(self, model: KeyedVectors):
+    def __init__(self, model: KeyedVectors, workers_amount: int = 5):
         self.model = model
+        self.workers_amount = workers_amount
 
     def find_word_inflections(self, word: str) -> StemDict:
         """
@@ -33,7 +34,7 @@ class StemGenerator:
     def generate_stemming_dict(self, vocabulary: Iterable[str]) -> StemDict:
         log.info("Generating stem dict for words...")
         model_stem_dict = {}
-        with AsyncTaskManager(workers_amount=5) as task_manager:
+        with AsyncTaskManager(workers_amount=self.workers_amount) as task_manager:
             log.debug("Appending stemming tasks...")
             for word in tqdm(vocabulary, desc="Add stemming tasks"):
                 task_manager.add_task(self.find_word_inflections, args=(word,))
