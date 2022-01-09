@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 
 class IllegalWordsStemmer(StemGenerator):
-    def __init__(self, model: KeyedVectors, legal_words: Iterable[str]):
-        super().__init__(model)
+    def __init__(self, model: KeyedVectors, legal_words: Iterable[str], workers_amount: int = 5):
+        super().__init__(model=model, workers_amount=workers_amount)
         self.legal_words = set(legal_words)
 
     def is_legal(self, word: str) -> bool:

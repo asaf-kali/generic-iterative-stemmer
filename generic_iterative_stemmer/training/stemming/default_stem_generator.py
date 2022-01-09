@@ -16,7 +16,7 @@ class DefaultStemGenerator(StemGenerator):
         max_len_diff: Optional[int] = 3,
         max_edit_distance: Optional[int] = 1,
     ):
-        super().__init__(model)
+        super().__init__(model=model)
         self.k = k
         self.min_cosine_similarity = min_cosine_similarity
         self.min_cosine_similarity_for_edit_distance = min_cosine_similarity_for_edit_distance
