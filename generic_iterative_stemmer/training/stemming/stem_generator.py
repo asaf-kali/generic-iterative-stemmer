@@ -33,13 +33,13 @@ class StemGenerator:
     def generate_stemming_dict(self, vocabulary: Iterable[str]) -> StemDict:
         log.info("Generating stem dict for words...")
         model_stem_dict = {}
-        task_manager = AsyncTaskManager(workers_amount=5)
-        log.debug("Appending stemming tasks...")
-        for word in vocabulary:
-            task_manager.add_task(self.find_word_inflections, args=(word,))
-        log.debug("Collecting stemming results...")
-        for result in tqdm(task_manager, total=task_manager.total_task_count, desc="Generate stem dict"):
-            model_stem_dict.update(result)
+        with AsyncTaskManager(workers_amount=5) as task_manager:
+            log.debug("Appending stemming tasks...")
+            for word in tqdm(vocabulary, desc="Add stemming tasks"):
+                task_manager.add_task(self.find_word_inflections, args=(word,))
+            log.debug("Collecting stemming results...")
+            for result in tqdm(task_manager, total=task_manager.total_task_count, desc="Generate stem dict"):
+                model_stem_dict.update(result)
         log.info(f"Total {len(model_stem_dict)} stems generated")
         reduced_dict = reduce_stem_dict(stem_dict=model_stem_dict)
         return reduced_dict
