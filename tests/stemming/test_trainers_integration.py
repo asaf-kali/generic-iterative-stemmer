@@ -5,6 +5,7 @@ from typing import Set, Type
 
 import pytest
 from stemming.conftest import CorpusResource
+from utils import hook_calls
 
 from generic_iterative_stemmer.errors import StemmingTrainerError
 from generic_iterative_stemmer.models import (
@@ -13,8 +14,12 @@ from generic_iterative_stemmer.models import (
 )
 from generic_iterative_stemmer.training.stemming import (
     FastTextStemmingTrainer,
+    StemGenerator,
     StemmingTrainer,
     Word2VecStemmingTrainer,
+)
+from generic_iterative_stemmer.training.stemming.default_stem_generator import (
+    DefaultStemGenerator,
 )
 from generic_iterative_stemmer.training.stemming.illegal_words_stemmer import (
     IllegalWordsStemmer,
@@ -151,3 +156,28 @@ class TestStemmingTrainersIntegration:
         model = trainer.get_stemmed_keyed_vectors()
         model_vocab = set(model.key_to_index.keys())
         assert model_vocab == set(legal_words)
+
+    def test_training_with_stemming_program(
+        self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
+    ):
+        StemmingTrainer.get_stem_generator, hook = hook_calls(StemmingTrainer.get_stem_generator)  # type: ignore
+        legal_words = ["קוד", "פונקציה", "לינוקס", "פיתוח", "שפה"]
+        stemming_program = [
+            DefaultStemGenerator(min_cosine_similarity_for_edit_distance=0.4, max_edit_distance=4),
+            DefaultStemGenerator(min_cosine_similarity_for_edit_distance=0.3, max_edit_distance=4),
+            IllegalWordsStemmer(legal_words=legal_words),
+        ]
+        trainer = trainer_class(
+            corpus_folder=corpus_resource.test_corpus_folder,
+            max_iterations=4,
+            stemming_program=stemming_program,
+            default_stem_generator_params=STEM_GENERATOR_PARAMS,
+        )
+        trainer.train()
+
+        results = hook.results
+        assert len(results) == 4
+        assert results[:3] == stemming_program
+
+        last_stem_generator: StemGenerator = results[-1]
+        assert STEM_GENERATOR_PARAMS.items() <= last_stem_generator.params.items()
