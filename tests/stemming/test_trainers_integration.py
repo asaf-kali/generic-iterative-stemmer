@@ -47,13 +47,13 @@ class TestStemmingTrainersIntegration:
         trainer = trainer_class(
             corpus_folder=corpus_resource.test_corpus_folder,
             max_iterations=1,
-            stem_generator_params=STEM_GENERATOR_PARAMS,
+            default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         trainer.train()
 
         loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_corpus_folder)
         assert loaded_trainer.completed_iterations == 1
-        assert loaded_trainer.stem_generator_params == STEM_GENERATOR_PARAMS
+        assert loaded_trainer.default_stem_generator_params == STEM_GENERATOR_PARAMS
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2"]
 
         loaded_trainer.run_iteration()
@@ -66,7 +66,7 @@ class TestStemmingTrainersIntegration:
         trainer = trainer_class(
             corpus_folder=corpus_resource.test_corpus_folder,
             max_iterations=5,
-            stem_generator_params=STEM_GENERATOR_PARAMS,
+            default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         trainer.train()
 
@@ -128,7 +128,7 @@ class TestStemmingTrainersIntegration:
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder, stem_generator_params=STEM_GENERATOR_PARAMS
+            corpus_folder=corpus_resource.test_corpus_folder, default_stem_generator_params=STEM_GENERATOR_PARAMS
         )
         with pytest.raises(StemmingTrainerError):
             _ = trainer.last_completed_iteration_folder
@@ -143,8 +143,8 @@ class TestStemmingTrainersIntegration:
         legal_words = ["קוד", "פונקציה", "לינוקס", "פיתוח", "שפה"]
         trainer = trainer_class(
             corpus_folder=corpus_resource.test_corpus_folder,
-            stem_generator_class=IllegalWordsStemmer,
-            stem_generator_params={"legal_words": legal_words},
+            default_stem_generator_class=IllegalWordsStemmer,
+            default_stem_generator_params={"legal_words": legal_words},
         )
         trainer.train()
 

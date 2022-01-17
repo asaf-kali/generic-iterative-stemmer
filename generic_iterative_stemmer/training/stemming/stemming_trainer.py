@@ -92,13 +92,13 @@ class StemmingIterationTrainer:
     def __init__(
         self,
         trainer: "StemmingTrainer",
-        stem_generator_class: Type[StemGenerator],
+        stem_generator: StemGenerator,
         iteration_number: int,
         corpus_folder: str,
         base_model: KeyedVectors = None,
     ):
         self.trainer = trainer
-        self.stem_generator_class = stem_generator_class
+        self.stem_generator = stem_generator
         self.iteration_number = iteration_number
         self.corpus_folder = corpus_folder
         self.model = base_model
@@ -147,11 +147,9 @@ class StemmingIterationTrainer:
         return model
 
     def generate_stem_dict(self) -> StemDict:
-        stem_generator_params = self.trainer.get_stem_generator_params(iteration_number=self.iteration_number)
-        stem_generator = self.stem_generator_class(model=self.model, **stem_generator_params)  # type: ignore #  noqa
-        self.stats.stem_generator_params = stem_generator.params
+        self.stats.stem_generator_params = self.stem_generator.params
         vocabulary = self.model.key_to_index.keys()  # type: ignore
-        return stem_generator.generate_stemming_dict(vocabulary)
+        return self.stem_generator.generate_stemming_dict(model=self.model, vocabulary=vocabulary)
 
     def generate_stemmed_corpus(self):
         self.stats.initial_vocab_size = len(self.model.key_to_index)
@@ -179,22 +177,24 @@ class StemmingTrainer:
     def __init__(
         self,
         corpus_folder: str,
-        stem_generator_class: Type[StemGenerator] = DefaultStemGenerator,
         completed_iterations: int = 0,
         latest_model: Optional[KeyedVectors] = None,
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
         min_change_count: int = 0,
-        stem_generator_params: Optional[dict] = None,
+        stemming_program: List[StemGenerator] = None,
+        default_stem_generator_class: Type[StemGenerator] = DefaultStemGenerator,
+        default_stem_generator_params: Optional[dict] = None,
     ):
         self.corpus_folder = corpus_folder
-        self.stem_generator_class = stem_generator_class  # TODO: This can't be serialized and loaded.
         self.completed_iterations = completed_iterations
         self.latest_model = latest_model  # TODO: Think about that field.
         self.max_iterations = max_iterations
         self.is_fully_stemmed = is_fully_stemmed
         self.min_change_count = min_change_count
-        self.stem_generator_params = stem_generator_params or {}
+        self.stemming_program = stemming_program or []
+        self.default_stem_generator_class = default_stem_generator_class  # TODO: This can't be serialized and loaded.
+        self.default_stem_generator_params = default_stem_generator_params or {}
 
     @classmethod
     def load_from_state_file(cls, corpus_folder: str, **kwargs) -> "StemmingTrainer":
@@ -213,7 +213,7 @@ class StemmingTrainer:
             "completed_iterations": self.completed_iterations,
             "max_iterations": self.max_iterations,
             "is_fully_stemmed": self.is_fully_stemmed,
-            "stem_generator_params": self.stem_generator_params,
+            "default_stem_generator_params": self.default_stem_generator_params,
         }
 
     @property
@@ -252,10 +252,12 @@ class StemmingTrainer:
 
     @measure_time
     def run_iteration(self) -> StemmingIterationStats:
+        iteration_number = self.completed_iterations + 1
+        stem_generator = self.get_stem_generator(iteration_number=iteration_number)
         iteration_trainer = StemmingIterationTrainer(
             trainer=self,
-            stem_generator_class=self.stem_generator_class,
-            iteration_number=self.completed_iterations + 1,
+            stem_generator=stem_generator,
+            iteration_number=iteration_number,
             corpus_folder=self.corpus_folder,
             base_model=self.latest_model,
         )
@@ -265,8 +267,13 @@ class StemmingTrainer:
         self.save_state()
         return iteration_stats
 
-    def get_stem_generator_params(self, iteration_number: int) -> dict:
-        return self.stem_generator_params
+    def get_stem_generator(self, iteration_number: int) -> StemGenerator:
+        try:
+            stem_generator = self.stemming_program[iteration_number]
+        except IndexError:
+            stem_generator_params = self.default_stem_generator_params
+            stem_generator = self.default_stem_generator_class(**stem_generator_params)
+        return stem_generator
 
     def save_state(self):
         state_path = get_stemming_trainer_state_path(self.corpus_folder)

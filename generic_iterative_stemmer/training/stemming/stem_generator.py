@@ -13,11 +13,10 @@ StemDict = Dict[str, str]
 
 
 class StemGenerator:
-    def __init__(self, model: KeyedVectors, workers_amount: int = 5):
-        self.model = model
+    def __init__(self, workers_amount: int = 5):
         self.workers_amount = workers_amount
 
-    def find_word_inflections(self, word: str) -> StemDict:
+    def find_word_inflections(self, model: KeyedVectors, word: str) -> StemDict:
         """
         Find which other words in the vocabulary can be stemmed down to this word.
         """
@@ -31,13 +30,13 @@ class StemGenerator:
         return {}
 
     @measure_time
-    def generate_stemming_dict(self, vocabulary: Iterable[str]) -> StemDict:
+    def generate_stemming_dict(self, model: KeyedVectors, vocabulary: Iterable[str]) -> StemDict:
         log.info("Generating stem dict for words...")
         model_stem_dict = {}
         with AsyncTaskManager(workers_amount=self.workers_amount) as task_manager:
             log.debug("Appending stemming tasks...")
             for word in tqdm(vocabulary, desc="Add stemming tasks"):
-                task_manager.add_task(self.find_word_inflections, args=(word,))
+                task_manager.add_task(self.find_word_inflections, args=(model, word))
             log.debug("Collecting stemming results...")
             for result in tqdm(task_manager, total=task_manager.total_task_count, desc="Generate stem dict"):
                 model_stem_dict.update(result)
