@@ -269,7 +269,7 @@ class StemmingTrainer:
 
     def get_stem_generator(self, iteration_number: int) -> StemGenerator:
         try:
-            stem_generator = self.stemming_program[iteration_number]
+            stem_generator = self.stemming_program[iteration_number - 1]
         except IndexError:
             stem_generator_params = self.default_stem_generator_params
             stem_generator = self.default_stem_generator_class(**stem_generator_params)
