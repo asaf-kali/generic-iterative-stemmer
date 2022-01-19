@@ -9,8 +9,8 @@ from tqdm import tqdm
 log = logging.getLogger(__name__)
 
 HEBREW_WORD_PATTERN = re.compile(r"[\u0590-\u05FF\-']+")
-HEBREW_WIKI_REPLACE_PATTERN = re.compile(r"[\u0591-\u05C7]|'''")
-
+HEBREW_WIKI_REPLACE_PATTERN = re.compile(r"[\u0591-\u05C7]|'''|''")
+JUNK_PATTERN = re.compile(r"''")
 SUFFIX_LETTER_TO_NON_SUFFIX_LETTER = {
     "ך": "כ",
     "ם": "מ",
@@ -30,10 +30,10 @@ def _replace_to_non_suffix_letter(token: str) -> str:
 
 def hebrew_tokenizer(content: str, token_min_len: int, token_max_len: int, lower: bool = False) -> List[str]:
     content_without_scores = HEBREW_WIKI_REPLACE_PATTERN.sub("", content)
-    tokens = [match.group() for match in HEBREW_WORD_PATTERN.finditer(content_without_scores)]
-    tokens_filtered = filter(lambda token: token_min_len <= len(token) <= token_max_len, tokens)
-    hebrew_tokens = [_replace_to_non_suffix_letter(token) for token in tokens_filtered]
-    return hebrew_tokens
+    hebrew_tokens = [match.group() for match in HEBREW_WORD_PATTERN.finditer(content_without_scores)]
+    length_filtered = filter(lambda token: token_min_len <= len(token) <= token_max_len, hebrew_tokens)
+    no_suffix = [_replace_to_non_suffix_letter(token) for token in length_filtered]
+    return no_suffix
 
 
 def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, tokenizer_func: Callable = tokenize):
