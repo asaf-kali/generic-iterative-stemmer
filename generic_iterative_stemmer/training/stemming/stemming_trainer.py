@@ -81,6 +81,12 @@ class StemmingIterationStats:
         }
 
 
+@dataclass
+class IterationProgram:
+    stem_generator: Optional[StemGenerator] = None
+    training_kwargs: Optional[dict] = None
+
+
 class StemmingIterationTrainer:
     """
     Each stemming iteration i is given the corpus-i (that was generated in the i-1 iteration), and:
@@ -96,6 +102,7 @@ class StemmingIterationTrainer:
         iteration_number: int,
         corpus_folder: str,
         base_model: KeyedVectors = None,
+        training_kwargs: dict = None,
     ):
         self.trainer = trainer
         self.stem_generator = stem_generator
@@ -103,6 +110,7 @@ class StemmingIterationTrainer:
         self.corpus_folder = corpus_folder
         self.model = base_model
         self.stats = StemmingIterationStats()
+        self.training_kwargs = training_kwargs or {}
 
     @property
     def iteration_folder(self) -> str:
@@ -141,7 +149,7 @@ class StemmingIterationTrainer:
 
     def train_model(self) -> KeyedVectors:
         model = self.trainer.train_model_on_corpus(
-            corpus_file_path=self.iteration_corpus_path, iteration_number=self.iteration_number
+            corpus_file_path=self.iteration_corpus_path, training_kwargs=self.training_kwargs
         )
         model.save(self.iteration_trained_model_path)
         return model
@@ -182,7 +190,8 @@ class StemmingTrainer:
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
         min_change_count: int = 0,
-        stemming_program: List[StemGenerator] = None,
+        training_program: List[IterationProgram] = None,
+        default_training_kwargs: Optional[dict] = None,
         default_stem_generator_class: Type[StemGenerator] = DefaultStemGenerator,
         default_stem_generator_params: Optional[dict] = None,
     ):
@@ -192,7 +201,8 @@ class StemmingTrainer:
         self.max_iterations = max_iterations
         self.is_fully_stemmed = is_fully_stemmed
         self.min_change_count = min_change_count
-        self.stemming_program = stemming_program or []
+        self.training_program = training_program or []
+        self.default_training_kwargs = default_training_kwargs or {}
         self.default_stem_generator_class = default_stem_generator_class  # TODO: This can't be serialized and loaded.
         self.default_stem_generator_params = default_stem_generator_params or {}
 
@@ -247,19 +257,21 @@ class StemmingTrainer:
         self.save_state()
 
     @measure_time
-    def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
+    def train_model_on_corpus(self, corpus_file_path: str, training_kwargs: dict) -> KeyedVectors:
         raise NotImplementedError()
 
     @measure_time
     def run_iteration(self) -> StemmingIterationStats:
         iteration_number = self.completed_iterations + 1
         stem_generator = self.get_stem_generator(iteration_number=iteration_number)
+        training_kwargs = self.get_training_kwargs(iteration_number=iteration_number)
         iteration_trainer = StemmingIterationTrainer(
             trainer=self,
             stem_generator=stem_generator,
             iteration_number=iteration_number,
             corpus_folder=self.corpus_folder,
             base_model=self.latest_model,
+            training_kwargs=training_kwargs,
         )
         iteration_stats = iteration_trainer.run_stemming_iteration()
         self.completed_iterations += 1
@@ -267,10 +279,25 @@ class StemmingTrainer:
         self.save_state()
         return iteration_stats
 
-    def get_stem_generator(self, iteration_number: int) -> StemGenerator:
+    def get_training_kwargs(self, iteration_number: int) -> dict:
+        training_kwargs = None
         try:
-            stem_generator = self.stemming_program[iteration_number - 1]
+            iteration_program = self.training_program[iteration_number - 1]
+            training_kwargs = iteration_program.training_kwargs
         except IndexError:
+            pass
+        if training_kwargs is None:
+            training_kwargs = self.default_training_kwargs
+        return training_kwargs
+
+    def get_stem_generator(self, iteration_number: int) -> StemGenerator:
+        stem_generator = None
+        try:
+            iteration_program = self.training_program[iteration_number - 1]
+            stem_generator = iteration_program.stem_generator
+        except IndexError:
+            pass
+        if stem_generator is None:
             stem_generator_params = self.default_stem_generator_params
             stem_generator = self.default_stem_generator_class(**stem_generator_params)
         return stem_generator

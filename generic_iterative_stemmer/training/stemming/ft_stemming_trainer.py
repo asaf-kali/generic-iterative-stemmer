@@ -4,13 +4,14 @@ from generic_iterative_stemmer.training.stemming import StemmingTrainer
 
 
 class FastTextStemmingTrainer(StemmingTrainer):
-    def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
+    def train_model_on_corpus(self, corpus_file_path: str, training_kwargs: dict) -> KeyedVectors:
         model = FastText(corpus_file=corpus_file_path)
+        training_kwargs.setdefault("epochs", model.epochs)
         model.train(
             corpus_file=corpus_file_path,
             total_words=model.corpus_total_words,
             total_examples=model.corpus_count,
-            epochs=model.epochs,
+            **training_kwargs
         )
         return model.wv
 

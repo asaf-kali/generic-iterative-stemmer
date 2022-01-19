@@ -5,8 +5,8 @@ from generic_iterative_stemmer.training.stemming import StemmingTrainer
 
 
 class Word2VecStemmingTrainer(StemmingTrainer):
-    def train_model_on_corpus(self, corpus_file_path: str, iteration_number: int) -> KeyedVectors:
-        model = word2vec.train(corpus_file_path)
+    def train_model_on_corpus(self, corpus_file_path: str, training_kwargs: dict) -> KeyedVectors:
+        model = word2vec.train(corpus_path=corpus_file_path, **training_kwargs)
         return model.wv
 
 
