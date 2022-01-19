@@ -24,6 +24,9 @@ from generic_iterative_stemmer.training.stemming.default_stem_generator import (
 from generic_iterative_stemmer.training.stemming.illegal_words_stemmer import (
     IllegalWordsStemmer,
 )
+from generic_iterative_stemmer.training.stemming.stemming_trainer import (
+    IterationProgram,
+)
 
 log = logging.getLogger(__name__)
 
@@ -167,10 +170,11 @@ class TestStemmingTrainersIntegration:
             DefaultStemGenerator(min_cosine_similarity_for_edit_distance=0.3, max_edit_distance=4),
             IllegalWordsStemmer(legal_words=legal_words),
         ]
+        training_program = [IterationProgram(stem_generator=generator) for generator in stemming_program]
         trainer = trainer_class(
             corpus_folder=corpus_resource.test_corpus_folder,
             max_iterations=4,
-            stemming_program=stemming_program,
+            training_program=training_program,
             default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         trainer.train()
