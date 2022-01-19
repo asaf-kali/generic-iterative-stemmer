@@ -16,7 +16,7 @@ from ...models import (
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import loader, measure_time
+from ...utils import loader, measure_time, sort_dict_by_values
 from . import StemDict, StemGenerator, reduce_stem_dict
 from .default_stem_generator import DefaultStemGenerator
 
@@ -319,7 +319,8 @@ class StemmingTrainer:
             iteration_stem_dict = stats["stem_dict"]
             stem_dict.update(iteration_stem_dict)
         reduced_stem_dict = reduce_stem_dict(stem_dict)
-        return reduced_stem_dict
+        sorted_stem_dict = sort_dict_by_values(reduced_stem_dict)
+        return sorted_stem_dict
 
     @property
     def last_completed_iteration_folder(self) -> str:
