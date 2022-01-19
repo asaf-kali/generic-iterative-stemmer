@@ -22,6 +22,13 @@ class IllegalWordsStemmer(StemGenerator):
         similarities = model.most_similar(word, topn=5)
         first_similarity = similarities[0]
         return {word: first_similarity[0]}
+        # similarities = model.most_similar(word, topn=20)
+        # for candidate, grade in similarities:
+        #     if not self.is_legal(candidate):
+        #         continue
+        #     if candidate in word:
+        #         return {word: candidate}
+        # return {}
 
     @property
     def params(self) -> dict:
