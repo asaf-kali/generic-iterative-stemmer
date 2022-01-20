@@ -4,7 +4,6 @@ from typing import Dict, Iterable
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from ...utils import measure_time
 from ...utils.async_task_manager import AsyncTaskManager
 
 log = logging.getLogger(__name__)
@@ -29,7 +28,6 @@ class StemGenerator:
         """
         return {}
 
-    @measure_time
     def generate_stemming_dict(self, model: KeyedVectors, vocabulary: Iterable[str]) -> StemDict:
         log.info("Generating stem dict for words...")
         model_stem_dict = {}

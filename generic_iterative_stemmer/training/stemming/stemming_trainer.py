@@ -16,7 +16,7 @@ from ...models import (
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import MeasureTime, loader, measure_time, sort_dict_by_values
+from ...utils import MeasureTime, loader, sort_dict_by_values
 from . import StemDict, StemGenerator, reduce_stem_dict
 from .default_stem_generator import DefaultStemGenerator
 
@@ -250,7 +250,6 @@ class StemmingTrainer:
     def iteration_folders_paths(self) -> List[str]:
         return [os.path.join(self.corpus_folder, folder_name) for folder_name in self.iteration_folders_names]
 
-    @measure_time
     def train(self, save_stem_dict_when_done: bool = True):
         log.info("Starting iterations stemmer training...")
         while True:
@@ -269,11 +268,9 @@ class StemmingTrainer:
             self.save_stem_dict()
         self.save_state()
 
-    @measure_time
     def train_model_on_corpus(self, corpus_file_path: str, training_kwargs: dict) -> KeyedVectors:
         raise NotImplementedError()
 
-    @measure_time
     def run_iteration(self) -> StemmingIterationStats:
         iteration_number = self.completed_iterations + 1
         stem_generator = self.get_stem_generator(iteration_number=iteration_number)
