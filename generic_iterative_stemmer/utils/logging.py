@@ -32,12 +32,12 @@ def get_logging_config(formatter: str = None, level: str = None) -> dict:
             },
             "debug": {
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
-                "[%(threadName)s] [%(name)s:%(lineno)s]",
+                          "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
             "test": {
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s "
-                "[%(threadName)s] [%(name)s:%(lineno)s]",
+                          "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%H:%M:%S",
             },
         },
@@ -76,13 +76,31 @@ def configure_logging(formatter: str = None, level: str = None):
     log.debug("Logging configured")
 
 
+class MeasureTime:
+    def __init__(self):
+        self.start = self.end = 0
+
+    def __enter__(self):
+        self.start = time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end = time()
+
+    @property
+    def delta(self) -> float:
+        return self.duration.total_seconds()
+
+    @property
+    def duration(self) -> timedelta:
+        return timedelta(seconds=self.end - self.start)
+
+
 def measure_time(func):
     def wrapper(*args, **kwargs):
-        start = time()
-        result = func(*args, **kwargs)
-        finish = time()
-        delta = timedelta(seconds=finish - start)
-        log.info(f"Function '{func.__name__}' took {delta}.")
+        with MeasureTime() as mt:
+            result = func(*args, **kwargs)
+        log.info(f"Function '{func.__name__}' took {mt.duration}.")
         return result
 
     return wrapper
