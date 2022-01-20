@@ -32,12 +32,12 @@ def get_logging_config(formatter: str = None, level: str = None) -> dict:
             },
             "debug": {
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
-                          "[%(threadName)s] [%(name)s:%(lineno)s]",
+                "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
             "test": {
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s "
-                          "[%(threadName)s] [%(name)s:%(lineno)s]",
+                "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%H:%M:%S",
             },
         },

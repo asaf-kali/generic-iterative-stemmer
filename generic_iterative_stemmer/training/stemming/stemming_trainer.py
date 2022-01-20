@@ -2,7 +2,7 @@ import json
 import logging
 import os.path
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Type
 
@@ -16,7 +16,7 @@ from ...models import (
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import loader, measure_time, sort_dict_by_values
+from ...utils import MeasureTime, loader, measure_time, sort_dict_by_values
 from . import StemDict, StemGenerator, reduce_stem_dict
 from .default_stem_generator import DefaultStemGenerator
 
@@ -67,6 +67,7 @@ class StemmingIterationStats:
     initial_vocab_size: Optional[int] = None
     stem_dict: Optional[dict] = None
     stem_generator_params: Optional[dict] = None
+    time_measures: dict = field(default_factory=dict)
 
     @property
     def stem_dict_size(self) -> int:
@@ -76,6 +77,7 @@ class StemmingIterationStats:
         return {
             "initial_vocab_size": self.initial_vocab_size,
             "stem_dict_size": self.stem_dict_size,
+            "time_measures": self.time_measures,
             "stem_generator_params": self.stem_generator_params,
             "stem_dict": self.stem_dict,
         }
@@ -148,16 +150,21 @@ class StemmingIterationTrainer:
         return self.stats
 
     def train_model(self) -> KeyedVectors:
-        model = self.trainer.train_model_on_corpus(
-            corpus_file_path=self.iteration_corpus_path, training_kwargs=self.training_kwargs
-        )
+        with MeasureTime() as mt:
+            model = self.trainer.train_model_on_corpus(
+                corpus_file_path=self.iteration_corpus_path, training_kwargs=self.training_kwargs
+            )
         model.save(self.iteration_trained_model_path)
+        self.stats.time_measures["train_model"] = mt.delta
         return model
 
     def generate_stem_dict(self) -> StemDict:
         self.stats.stem_generator_params = self.stem_generator.params
         vocabulary = self.model.key_to_index.keys()  # type: ignore
-        return self.stem_generator.generate_stemming_dict(model=self.model, vocabulary=vocabulary)
+        with MeasureTime() as mt:
+            result = self.stem_generator.generate_stemming_dict(model=self.model, vocabulary=vocabulary)
+        self.stats.time_measures["generate_stemmed_corpus"] = mt.delta
+        return result
 
     def generate_stemmed_corpus(self):
         self.stats.initial_vocab_size = len(self.model.key_to_index)
@@ -167,11 +174,17 @@ class StemmingIterationTrainer:
         if len(stem_dict) == 0:
             log.info("Stem dict was empty, skipping corpus stemming.")
             return
-        stem_corpus(
-            original_corpus_path=self.iteration_corpus_path,
-            output_corpus_path=self.next_iteration_corpus_path,
-            stem_dict=stem_dict,
-        )
+        self.stem_corpus(stem_dict)
+        self.save_stats()
+
+    def stem_corpus(self, stem_dict: StemDict):
+        with MeasureTime() as mt:
+            stem_corpus(
+                original_corpus_path=self.iteration_corpus_path,
+                output_corpus_path=self.next_iteration_corpus_path,
+                stem_dict=stem_dict,
+            )
+        self.stats.time_measures["stem_corpus"] = mt.delta
 
     def save_stats(self):
         stats_file = get_stats_path(self.iteration_folder)
