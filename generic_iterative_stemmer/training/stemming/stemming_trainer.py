@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List, Optional, Type
 
 from gensim.models import KeyedVectors
-from tqdm import tqdm
 
 from ...errors import StemmingTrainerError
 from ...models import (
@@ -18,30 +17,12 @@ from ...models import (
 )
 from ...utils import MeasureTime, loader, sort_dict_by_values
 from . import StemDict, StemGenerator, reduce_stem_dict
+from .corpus_stemmer import StemCorpusResult, stem_corpus
 from .default_stem_generator import DefaultStemGenerator
 
 log = logging.getLogger(__name__)
 
 ITER_FOLDER_PATTERN = re.compile(r"iter-\d+")
-
-
-def stem_sentence(sentence: str, stem_dict: StemDict) -> str:
-    words = sentence.split()
-    words_replaced = [stem_dict.get(word, word) for word in words]
-    sentence_replaced = " ".join(words_replaced)
-    if sentence[-1] == "\n":
-        sentence_replaced += "\n"
-    return sentence_replaced
-
-
-@measure_time
-def stem_corpus(original_corpus_path: str, output_corpus_path: str, stem_dict: StemDict):
-    log.info("Stemming corpus...")
-    with open(original_corpus_path) as original_file, open(output_corpus_path, "w") as output_file:
-        for sentence in tqdm(original_file, desc="Corpus stemming"):
-            reduced_sentence = stem_sentence(sentence, stem_dict=stem_dict)
-            output_file.write(reduced_sentence)
-    log.info("Stemming corpus done")
 
 
 def get_iteration_folder(base_folder: str, iteration_number: int) -> str:
@@ -68,6 +49,7 @@ class StemmingIterationStats:
     stem_dict: Optional[dict] = None
     stem_generator_params: Optional[dict] = None
     time_measures: dict = field(default_factory=dict)
+    stem_corpus_result: Optional[StemCorpusResult] = None
 
     @property
     def stem_dict_size(self) -> int:
@@ -78,6 +60,7 @@ class StemmingIterationStats:
             "initial_vocab_size": self.initial_vocab_size,
             "stem_dict_size": self.stem_dict_size,
             "time_measures": self.time_measures,
+            "stem_corpus_result": self.stem_corpus_result.as_dict() if self.stem_corpus_result else None,
             "stem_generator_params": self.stem_generator_params,
             "stem_dict": self.stem_dict,
         }
@@ -168,21 +151,21 @@ class StemmingIterationTrainer:
 
     def generate_stemmed_corpus(self):
         self.stats.initial_vocab_size = len(self.model.key_to_index)
-        stem_dict = self.generate_stem_dict()
-        self.stats.stem_dict = stem_dict
+        self.stats.stem_dict = self.generate_stem_dict()
         self.save_stats()
-        if len(stem_dict) == 0:
+        if len(self.stats.stem_dict) == 0:
             log.info("Stem dict was empty, skipping corpus stemming.")
             return
-        self.stem_corpus(stem_dict)
+        self.stem_corpus()
         self.save_stats()
 
-    def stem_corpus(self, stem_dict: StemDict):
+    def stem_corpus(self):
+        complete_stem_dict = self.trainer.collect_complete_stem_dict()
         with MeasureTime() as mt:
-            stem_corpus(
+            self.stats.stem_corpus_result = stem_corpus(
                 original_corpus_path=self.iteration_corpus_path,
                 output_corpus_path=self.next_iteration_corpus_path,
-                stem_dict=stem_dict,
+                stem_dict=complete_stem_dict,
             )
         self.stats.time_measures["stem_corpus"] = mt.delta
 

@@ -1,20 +1,4 @@
-from generic_iterative_stemmer.training.stemming import reduce_stem_dict, stem_sentence
-
-
-def test_stem_sentence():
-    sentence = "a b c d e f g"
-    stem_dict = {"a": "x"}
-    stemmed = stem_sentence(sentence=sentence, stem_dict=stem_dict)
-    expected = "x b c d e f g"
-    assert stemmed == expected
-
-
-def test_stem_sentence_on_last_word_in_hebrew_sentence():
-    sentence = " הוקמ בשנת קטגוריה הרכבימ מוזיקליימ מירושלימ\n"
-    stem_dict = {"מירושלימ": "ירושלימ"}
-    stemmed = stem_sentence(sentence=sentence, stem_dict=stem_dict)
-    expected = "הוקמ בשנת קטגוריה הרכבימ מוזיקליימ ירושלימ\n"
-    assert stemmed == expected
+from generic_iterative_stemmer.training.stemming import reduce_stem_dict
 
 
 def test_reduce_empty_stem_dict():
