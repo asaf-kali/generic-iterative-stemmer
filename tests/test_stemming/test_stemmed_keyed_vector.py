@@ -2,7 +2,7 @@ import os.path
 
 import numpy as np
 import pytest
-from stemming.conftest import CorpusResource
+from test_stemming.conftest import CorpusResource
 
 from generic_iterative_stemmer.errors import StemDictFileNotFoundError
 from generic_iterative_stemmer.models import (
