@@ -18,10 +18,10 @@ from generic_iterative_stemmer.training.stemming import (
 
 @pytest.fixture(scope="class")
 def trainer_resource() -> StemmingTrainer:
-    corpus_name = "small"
+    corpus_name = "corpus-small"
     corpus = CorpusResource(corpus_name)
     corpus.reset_corpus_folder()
-    trainer = Word2VecStemmingTrainer(corpus_folder=corpus.test_corpus_folder, max_iterations=2)
+    trainer = Word2VecStemmingTrainer(corpus_folder=corpus.test_runtime_corpus_folder, max_iterations=2)
     trainer.train()
     return trainer
 

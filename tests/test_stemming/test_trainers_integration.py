@@ -53,13 +53,13 @@ class TestStemmingTrainersIntegration:
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder,
+            corpus_folder=corpus_resource.test_runtime_corpus_folder,
             max_iterations=1,
             default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         trainer.train()
 
-        loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_corpus_folder)
+        loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_runtime_corpus_folder)
         assert loaded_trainer.completed_iterations == 1
         assert loaded_trainer.default_stem_generator_params == STEM_GENERATOR_PARAMS
         assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2"]
@@ -72,7 +72,7 @@ class TestStemmingTrainersIntegration:
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder,
+            corpus_folder=corpus_resource.test_runtime_corpus_folder,
             max_iterations=5,
             default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
@@ -116,7 +116,7 @@ class TestStemmingTrainersIntegration:
 
     def test_get_stemmed_keyed_vectors(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder, max_iterations=None, min_change_count=10
+            corpus_folder=corpus_resource.test_runtime_corpus_folder, max_iterations=None, min_change_count=10
         )
         trainer.train()
 
@@ -126,7 +126,7 @@ class TestStemmingTrainersIntegration:
     def test_get_stemmed_keyed_vectors_when_stem_dict_is_not_saved(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
-        trainer = trainer_class(corpus_folder=corpus_resource.test_corpus_folder, max_iterations=1)
+        trainer = trainer_class(corpus_folder=corpus_resource.test_runtime_corpus_folder, max_iterations=1)
         trainer.train(save_stem_dict_when_done=False)
 
         kv = trainer.get_stemmed_keyed_vectors()
@@ -136,7 +136,8 @@ class TestStemmingTrainersIntegration:
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
     ):
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder, default_stem_generator_params=STEM_GENERATOR_PARAMS
+            corpus_folder=corpus_resource.test_runtime_corpus_folder,
+            default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         with pytest.raises(StemmingTrainerError):
             _ = trainer.last_completed_iteration_folder
@@ -150,7 +151,7 @@ class TestStemmingTrainersIntegration:
     def test_illegal_words_stemmer(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
         legal_words = ["קוד", "פונקציה", "לינוקס", "פיתוח", "שפה"]
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder,
+            corpus_folder=corpus_resource.test_runtime_corpus_folder,
             default_stem_generator_class=IllegalWordsStemmer,
             default_stem_generator_params={"legal_words": legal_words},
         )
@@ -172,7 +173,7 @@ class TestStemmingTrainersIntegration:
         ]
         training_program = [IterationProgram(stem_generator=generator) for generator in stemming_program]
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_corpus_folder,
+            corpus_folder=corpus_resource.test_runtime_corpus_folder,
             max_iterations=4,
             training_program=training_program,
             default_stem_generator_params=STEM_GENERATOR_PARAMS,
