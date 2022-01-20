@@ -4,12 +4,9 @@ import multiprocessing
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 
-from ...utils import measure_time
-
 log = logging.getLogger(__name__)
 
 
-@measure_time
 def train(
     corpus_path: str,
     output_model_path: str = None,

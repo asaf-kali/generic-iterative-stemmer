@@ -94,13 +94,3 @@ class MeasureTime:
     @property
     def duration(self) -> timedelta:
         return timedelta(seconds=self.end - self.start)
-
-
-def measure_time(func):
-    def wrapper(*args, **kwargs):
-        with MeasureTime() as mt:
-            result = func(*args, **kwargs)
-        log.info(f"Function '{func.__name__}' took {mt.duration}.")
-        return result
-
-    return wrapper

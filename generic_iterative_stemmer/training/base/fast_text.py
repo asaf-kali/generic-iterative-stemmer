@@ -3,12 +3,9 @@ from typing import Optional
 
 import fasttext as ft
 
-from ...utils import measure_time
-
 log = logging.getLogger(__name__)
 
 
-@measure_time
 def train(corpus_path: str, output_model_path: Optional[str] = None, algorithm: str = "cbow"):
     model = ft.train_unsupervised(input=corpus_path, model=algorithm)
     if output_model_path is not None:
