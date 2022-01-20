@@ -4,7 +4,7 @@ import os
 from typing import Set, Type
 
 import pytest
-from stemming.conftest import CorpusResource
+from test_stemming.conftest import CorpusResource
 from utils import hook_calls
 
 from generic_iterative_stemmer.errors import StemmingTrainerError
