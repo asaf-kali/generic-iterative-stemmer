@@ -1,0 +1,5 @@
+- id: custom-lint
+  name: run lint command
+  entry: "make lint"
+  language: system
+  pass_filenames: false
