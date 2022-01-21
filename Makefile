@@ -2,6 +2,8 @@
 
 LINE_LENGTH=120
 
+# Install
+
 install-run:
 	pip install --upgrade pip
 	pip install -r requirements.txt
@@ -14,19 +16,25 @@ install-dev:
 	@make install-test --no-print-directory
 	pre-commit install
 
-lint:
+install: install-dev
+
+# Lint
+
+lint-only:
 	black . -l $(LINE_LENGTH)
 	isort . --profile black --skip __init__.py
 
-check-lint:
+lint-check:
 	black . -l $(LINE_LENGTH) --check
 	isort . --profile black --check --skip __init__.py
 	mypy . --ignore-missing-imports
 	flake8 . --max-line-length=$(LINE_LENGTH)
 
-lint-and-check:
-	@make lint --no-print-directory
-	@make check-lint --no-print-directory
+lint:
+	@make lint-only --no-print-directory
+	@make lint-check --no-print-directory
+
+# Test
 
 test:
 	python -m pytest -s

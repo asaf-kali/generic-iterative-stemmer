@@ -1,5 +1,5 @@
-- id: custom-lint
+- id: lint
   name: run lint command
-  entry: "make lint"
+  entry: "make lint-only"
   language: system
   pass_filenames: false

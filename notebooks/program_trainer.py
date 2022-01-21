@@ -35,7 +35,12 @@ def main():
         IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
     ]
 
-    trainer = FastTextStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, training_program=training_program)
+    # trainer = FastTextStemmingTrainer(
+    # corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
+    # )
+    trainer = FastTextStemmingTrainer.load_from_state_file(
+        corpus_folder=corpus_folder, training_program=training_program
+    )
     trainer.train()
 
 
