@@ -125,11 +125,14 @@ class StemmingIterationTrainer:
 
     def run_stemming_iteration(self) -> StemmingIterationStats:
         log.info(f"Running stemming iteration number {self.iteration_number}.")
-        self.model = self._try_load_trained_model()
-        if not self.model:
-            self.model = self.train_model()
-        self.generate_stemmed_corpus()
-        log.info(f"Stemming iteration {self.iteration_number} completed.")
+        with MeasureTime() as mt:
+            self.model = self._try_load_trained_model()
+            if not self.model:
+                self.model = self.train_model()
+            self.generate_stemmed_corpus()
+            log.info(f"Stemming iteration {self.iteration_number} completed.")
+        self.stats.time_measures["run_stemming_iteration"] = mt.delta
+        self.save_stats()
         return self.stats
 
     def train_model(self) -> KeyedVectors:
@@ -145,22 +148,23 @@ class StemmingIterationTrainer:
         self.stats.stem_generator_params = self.stem_generator.params
         vocabulary = self.model.key_to_index.keys()  # type: ignore
         with MeasureTime() as mt:
-            result = self.stem_generator.generate_stemming_dict(model=self.model, vocabulary=vocabulary)
+            stem_dict = self.stem_generator.generate_stemming_dict(model=self.model, vocabulary=vocabulary)
         self.stats.time_measures["generate_stemmed_corpus"] = mt.delta
-        return result
+        return stem_dict
 
     def generate_stemmed_corpus(self):
         self.stats.initial_vocab_size = len(self.model.key_to_index)
         self.stats.stem_dict = self.generate_stem_dict()
-        self.save_stats()
+        self.save_stats()  # This is mandatory, as we have to save_stats before stem_corpus.
         if len(self.stats.stem_dict) == 0:
             log.info("Stem dict was empty, skipping corpus stemming.")
             return
         self.stem_corpus()
-        self.save_stats()
 
     def stem_corpus(self):
-        complete_stem_dict = self.trainer.collect_complete_stem_dict()
+        with MeasureTime() as mt:
+            complete_stem_dict = self.trainer.collect_complete_stem_dict()
+        self.stats.time_measures["collect_complete_stem_dict"] = mt.delta
         with MeasureTime() as mt:
             self.stats.stem_corpus_result = stem_corpus(
                 original_corpus_path=self.iteration_corpus_path,

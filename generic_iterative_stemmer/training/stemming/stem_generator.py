@@ -4,6 +4,7 @@ from typing import Dict, Iterable
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
+from ...utils import sort_dict_by_values
 from ...utils.async_task_manager import AsyncTaskManager
 
 log = logging.getLogger(__name__)
@@ -39,7 +40,8 @@ class StemGenerator:
             for result in tqdm(task_manager, total=task_manager.total_task_count, desc="Generate stem dict"):
                 model_stem_dict.update(result)
         log.info(f"Total {len(model_stem_dict)} stems generated")
-        reduced_dict = reduce_stem_dict(stem_dict=model_stem_dict)
+        stem_dict = reduce_stem_dict(stem_dict=model_stem_dict)
+        reduced_dict = sort_dict_by_values(stem_dict)
         return reduced_dict
 
 
