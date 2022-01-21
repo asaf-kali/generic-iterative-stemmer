@@ -9,6 +9,6 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/asaf-kali/generic-iterative-stemmer
-    rev: 916687483b9683d3b8e16466ebebfabaf54dd4d8
+    rev: 46c518b0e1ecb1035cd01a8dd8f3d032845e3f30
     hooks:
-      - id: custom-lint
+      - id: lint
