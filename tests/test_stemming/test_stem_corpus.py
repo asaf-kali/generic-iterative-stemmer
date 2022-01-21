@@ -1,4 +1,5 @@
-from test_stemming.conftest import CORPUS_TINY, CorpusResource, get_runtime_file_path
+from test_stemming.conftest import CorpusResource
+from utils.data import CORPUS_TINY, get_runtime_file_path
 
 from generic_iterative_stemmer.training.stemming.corpus_stemmer import (
     CorpusStemmer,
