@@ -15,6 +15,8 @@ install-test:
 install-dev:
 	@make install-test --no-print-directory
 	pre-commit install
+	@make test --no-print-directory
+
 
 install: install-dev
 
@@ -26,13 +28,14 @@ lint-only:
 
 lint-check:
 	black . -l $(LINE_LENGTH) --check
-	isort . --profile black --check --skip __init__.py
+	isort . --profile black --skip __init__.py --check
 	mypy . --ignore-missing-imports
 	flake8 . --max-line-length=$(LINE_LENGTH)
 
 lint:
 	@make lint-only --no-print-directory
 	@make lint-check --no-print-directory
+	pre-commit run --all-files
 
 # Test
 

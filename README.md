@@ -19,7 +19,7 @@ Based on https://github.com/liorshk/wordembedding-hebrew.
 ## Setup
 
 1. Create a `python3` virtual environment.
-2. Install dependencies using `make install`.
+2. Install dependencies using `make install` (this will run tests too).
 
 ## Usage
 
