@@ -2,6 +2,7 @@ import json
 import logging
 import os.path
 import re
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Type
@@ -135,7 +136,19 @@ class StemmingIterationTrainer:
         self.save_stats()
         return self.stats
 
+    def _first_iteration_check(self):
+        if self.iteration_number == 1:
+            if os.path.exists(self.iteration_corpus_path):
+                return
+        base_corpus_path = get_corpus_path(self.corpus_folder)
+        try:
+            os.makedirs(self.iteration_folder, exist_ok=True)
+            shutil.move(src=base_corpus_path, dst=self.iteration_corpus_path)
+        except Exception as e:
+            log.warning(f"Failed to copy base corpus into first iteration folder: {e}")
+
     def train_model(self) -> KeyedVectors:
+        self._first_iteration_check()
         with MeasureTime() as mt:
             model = self.trainer.train_model_on_corpus(
                 corpus_file_path=self.iteration_corpus_path, training_kwargs=self.training_kwargs
