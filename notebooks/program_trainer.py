@@ -14,15 +14,14 @@ from generic_iterative_stemmer.utils import configure_logging, get_path
 def main():
     configure_logging()
 
-    corpus_name = "wiki-he-cbow"
-    corpus_folder = get_path(corpus_name)
     training_program = [
         IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.80, max_edit_distance=0)),
         IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
                 min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.80
-            )
+            ),
+            training_params={"epochs": 8},
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
@@ -33,15 +32,24 @@ def main():
         IterationProgram(
             stem_generator=DefaultStemGenerator(
                 min_cosine_similarity=0.75, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.80
-            )
+            ),
+            training_params={"epochs": 8},
         ),
         IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
     ]
 
+    corpus_name = "wiki-he-cbow"
+    corpus_folder = get_path(corpus_name)
+    training_params = {"vector_size": 150, "epochs": 7, "window": 7}
     # trainer = FastTextStemmingTrainer(
-    # corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
+    #     corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
     # )
-    trainer = Word2VecStemmingTrainer(corpus_folder=corpus_folder, max_iterations=10, training_program=training_program)
+    trainer = Word2VecStemmingTrainer(
+        corpus_folder=corpus_folder,
+        max_iterations=8,
+        training_program=training_program,
+        default_training_params=training_params,
+    )
 
     trainer.train()
 
