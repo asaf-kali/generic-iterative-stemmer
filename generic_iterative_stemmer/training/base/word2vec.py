@@ -14,6 +14,8 @@ def train(
     vector_size: int = 100,
     window: int = 5,
     min_count: int = 5,
+    epochs: int = 5,
+    **kwargs,
 ) -> Word2Vec:
     sentences = LineSentence(corpus_path)
     sg = 1 if skip_gram else 0
@@ -23,6 +25,8 @@ def train(
         window=window,
         min_count=min_count,
         workers=multiprocessing.cpu_count(),
+        epochs=epochs,
+        **kwargs,
     )
     model.build_vocab(corpus_iterable=sentences)
     model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=5)
