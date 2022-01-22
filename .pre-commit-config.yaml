@@ -6,9 +6,10 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
+        exclude: ".ipynb"
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/asaf-kali/generic-iterative-stemmer
-    rev: 46c518b0e1ecb1035cd01a8dd8f3d032845e3f30
+    rev: 5450a21a32a24204281db139e5d65fc40f74893c
     hooks:
       - id: lint
