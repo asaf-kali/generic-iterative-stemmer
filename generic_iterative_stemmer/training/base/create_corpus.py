@@ -28,12 +28,20 @@ def _replace_to_non_suffix_letter(token: str) -> str:
     return token[:-1] + SUFFIX_LETTER_TO_NON_SUFFIX_LETTER[suffix_letter]
 
 
-def hebrew_tokenizer(content: str, token_min_len: int, token_max_len: int, lower: bool = False) -> List[str]:
+def hebrew_tokenizer(
+    content: str, token_min_len: int, token_max_len: int, lower: bool = False, replace_hebrew_suffix: bool = False
+) -> List[str]:
     content_without_scores = HEBREW_WIKI_REPLACE_PATTERN.sub("", content)
     hebrew_tokens = [match.group() for match in HEBREW_WORD_PATTERN.finditer(content_without_scores)]
     length_filtered = filter(lambda token: token_min_len <= len(token) <= token_max_len, hebrew_tokens)
+    if not replace_hebrew_suffix:
+        return list(length_filtered)
     no_suffix = [_replace_to_non_suffix_letter(token) for token in length_filtered]
     return no_suffix
+
+
+def hebrew_tokenizer_no_suffix(*args, **kwargs):
+    return hebrew_tokenizer(*args, **kwargs, replace_hebrew_suffix=True)
 
 
 def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, tokenizer_func: Callable = tokenize):
@@ -53,5 +61,5 @@ if __name__ == "__main__":
 
     configure_logging()
     articles = get_path("hewiki-latest-pages-articles.xml.bz2")
-    out = get_path("wiki-he", "corpus.txt")
+    out = get_path("corpus-he.txt")
     generate_wiki_corpus_file(articles, out, tokenizer_func=hebrew_tokenizer)
