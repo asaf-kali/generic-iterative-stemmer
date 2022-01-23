@@ -29,7 +29,7 @@ def train(
         **kwargs,
     )
     model.build_vocab(corpus_iterable=sentences)
-    model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=5)
+    model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=epochs)
     log.debug("Word2Vec training done.")
     if output_model_path is not None:
         log.debug("Saving model.")
@@ -38,12 +38,3 @@ def train(
         model.save(model_file_path)
         model.wv.save(kv_file_path)
     return model
-
-
-if __name__ == "__main__":
-    from ...utils import get_path
-
-    corpus_name = "wiki-he"
-    corpus_file = get_path(corpus_name, "corpus.txt")
-    output_file = get_path(corpus_name, "cbow")
-    train(corpus_file, output_file)
