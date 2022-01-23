@@ -1,18 +1,12 @@
-from gensim.models import FastText, KeyedVectors
+from gensim.models import KeyedVectors
 
+from generic_iterative_stemmer.training.base import fast_text
 from generic_iterative_stemmer.training.stemming import StemmingTrainer
 
 
 class FastTextStemmingTrainer(StemmingTrainer):
     def train_model_on_corpus(self, corpus_file_path: str, **kwargs) -> KeyedVectors:
-        model = FastText(corpus_file=corpus_file_path)
-        kwargs.setdefault("epochs", model.epochs)
-        model.train(
-            corpus_file=corpus_file_path,
-            total_words=model.corpus_total_words,
-            total_examples=model.corpus_count,
-            **kwargs
-        )
+        model = fast_text.train(corpus_path=corpus_file_path, **kwargs)
         return model.wv
 
 

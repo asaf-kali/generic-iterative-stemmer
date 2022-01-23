@@ -30,9 +30,9 @@ def train(
     )
     model.build_vocab(corpus_iterable=sentences)
     model.train(corpus_iterable=sentences, total_examples=model.corpus_count, epochs=5)
-    log.debug("Training done")
+    log.debug("Word2Vec training done.")
     if output_model_path is not None:
-        log.debug("Saving model")
+        log.debug("Saving model.")
         model_file_path = f"{output_model_path}.model"
         kv_file_path = f"{output_model_path}.kv"
         model.save(model_file_path)
