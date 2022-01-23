@@ -44,6 +44,7 @@ def assert_skv_sanity(skv: StemmedKeyedVectors, is_fully_stemmed: bool = True):
         assert present_words_count < len(stemmed_words) / 3
 
 
+TRAINING_PARAMS = {"vector_size": 50, "epochs": 3}
 STEM_GENERATOR_PARAMS = {"min_cosine_similarity": 0.5, "max_edit_distance": 4}
 
 
@@ -74,6 +75,7 @@ class TestStemmingTrainersIntegration:
         trainer = trainer_class(
             corpus_folder=corpus_resource.test_runtime_corpus_folder,
             max_iterations=5,
+            default_training_params=TRAINING_PARAMS,
             default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         trainer.train()
@@ -116,7 +118,10 @@ class TestStemmingTrainersIntegration:
 
     def test_get_stemmed_keyed_vectors(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
         trainer = trainer_class(
-            corpus_folder=corpus_resource.test_runtime_corpus_folder, max_iterations=None, min_change_count=10
+            corpus_folder=corpus_resource.test_runtime_corpus_folder,
+            max_iterations=None,
+            min_change_count=10,
+            default_training_params=TRAINING_PARAMS,
         )
         trainer.train()
 
@@ -176,6 +181,7 @@ class TestStemmingTrainersIntegration:
             corpus_folder=corpus_resource.test_runtime_corpus_folder,
             max_iterations=4,
             training_program=training_program,
+            default_training_params=TRAINING_PARAMS,
             default_stem_generator_params=STEM_GENERATOR_PARAMS,
         )
         trainer.train()

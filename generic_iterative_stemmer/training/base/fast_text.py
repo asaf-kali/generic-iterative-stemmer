@@ -24,13 +24,7 @@ def train(
         sg=sg,
         epochs=epochs,
         **kwargs,
-    )
-    model.train(
-        corpus_file=corpus_path,
-        total_words=model.corpus_total_words,
-        total_examples=model.corpus_count,
-        epochs=model.epochs,
-    )
+    )  # This trains the model too.
     log.debug("FastText training done.")
     if output_model_path is not None:
         log.debug("Saving model.")
@@ -39,12 +33,3 @@ def train(
         model.save(model_file_path)
         model.wv.save(kv_file_path)
     return model
-
-
-if __name__ == "__main__":
-    from ...utils import get_path
-
-    corpus_name = "small"
-    corpus = get_path(corpus_name, "corpus.txt")
-    output = get_path(corpus_name, "fasttext.model")
-    train(corpus, output)
