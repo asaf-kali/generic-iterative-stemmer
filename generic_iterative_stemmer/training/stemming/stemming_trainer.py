@@ -138,9 +138,8 @@ class StemmingIterationTrainer:
         return self.stats
 
     def _first_iteration_check(self):
-        if self.iteration_number == 1:
-            if os.path.exists(self.iteration_corpus_path):
-                return
+        if self.iteration_number != 1 or os.path.exists(self.iteration_corpus_path):
+            return
         base_corpus_path = get_corpus_path(self.corpus_folder)
         try:
             os.makedirs(self.iteration_folder, exist_ok=True)
