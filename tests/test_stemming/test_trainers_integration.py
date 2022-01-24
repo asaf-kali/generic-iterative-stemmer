@@ -26,6 +26,8 @@ from generic_iterative_stemmer.training.stemming.illegal_words_stemmer import (
 )
 from generic_iterative_stemmer.training.stemming.stemming_trainer import (
     IterationProgram,
+    get_corpus_path,
+    get_iteration_folder,
 )
 
 log = logging.getLogger(__name__)
@@ -192,3 +194,13 @@ class TestStemmingTrainersIntegration:
 
         last_stem_generator: StemGenerator = results[-1]
         assert STEM_GENERATOR_PARAMS.items() <= last_stem_generator.params.items()
+
+        # Corpus deletion validation (not related to this test...)
+        for i in range(1, 6):
+            iteration_directory = get_iteration_folder(corpus_resource.test_runtime_corpus_folder, iteration_number=i)
+            iteration_corpus_path = get_corpus_path(iteration_directory)
+            iteration_corpus_exists = os.path.exists(iteration_corpus_path)
+            if i == 1 or i == 5:
+                assert iteration_corpus_exists
+            else:
+                assert not iteration_corpus_exists
