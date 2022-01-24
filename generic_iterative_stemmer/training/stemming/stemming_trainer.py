@@ -62,8 +62,8 @@ class StemmingIterationStats:
             "initial_vocab_size": self.initial_vocab_size,
             "stem_dict_size": self.stem_dict_size,
             "time_measures": self.time_measures,
-            "stem_corpus_result": self.stem_corpus_result.as_dict() if self.stem_corpus_result else None,
             "stem_generator_params": self.stem_generator_params,
+            "stem_corpus_result": self.stem_corpus_result.as_dict() if self.stem_corpus_result else None,
             "stem_dict": self.stem_dict,
         }
 
@@ -158,7 +158,8 @@ class StemmingIterationTrainer:
         return model
 
     def generate_stem_dict(self) -> StemDict:
-        self.stats.stem_generator_params = self.stem_generator.params
+        self.stats.stem_generator_params = self.stem_generator.params or {}
+        self.stats.stem_generator_params["stem_generator_class"] = self.stem_generator.__class__.__name__
         vocabulary = self.model.key_to_index.keys()  # type: ignore
         with MeasureTime() as mt:
             stem_dict = self.stem_generator.generate_stemming_dict(model=self.model, vocabulary=vocabulary)
