@@ -17,7 +17,7 @@ from ...models import (
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import MeasureTime, loader, sort_dict_by_values
+from ...utils import MeasureTime, loader, remove_file_exit_ok, sort_dict_by_values
 from . import StemDict, StemGenerator, reduce_stem_dict
 from .corpus_stemmer import StemCorpusResult, stem_corpus
 from .default_stem_generator import DefaultStemGenerator
@@ -119,6 +119,10 @@ class StemmingIterationTrainer:
     def iteration_trained_model_path(self) -> str:
         return get_model_path(self.iteration_folder)
 
+    @property
+    def is_first_iteration(self) -> bool:
+        return self.iteration_number == 1
+
     def _try_load_trained_model(self) -> Optional[KeyedVectors]:
         model_path = self.iteration_trained_model_path
         if os.path.exists(model_path):
@@ -138,7 +142,7 @@ class StemmingIterationTrainer:
         return self.stats
 
     def _first_iteration_check(self):
-        if self.iteration_number != 1 or os.path.exists(self.iteration_corpus_path):
+        if not self.is_first_iteration or os.path.exists(self.iteration_corpus_path):
             return
         base_corpus_path = get_corpus_path(self.corpus_folder)
         try:
@@ -186,6 +190,8 @@ class StemmingIterationTrainer:
                 stem_dict=complete_stem_dict,
             )
         self.stats.time_measures["stem_corpus"] = mt.delta
+        if not self.is_first_iteration and os.path.exists(self.next_iteration_corpus_path):
+            remove_file_exit_ok(self.iteration_corpus_path)
 
     def save_stats(self):
         stats_file = get_stats_path(self.iteration_folder)
