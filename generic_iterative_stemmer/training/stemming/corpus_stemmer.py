@@ -28,21 +28,21 @@ class StemCorpusResult:
         self.total_stem_count += stem_sentence_result.total_stem_count
 
     @property
-    def overall_stemming_index(self) -> float:
-        return self.total_stem_count / self.total_word_count if self.total_word_count else 0
+    def unique_stemming_ratio(self) -> float:
+        return self.unique_stem_count / self.unique_word_count if self.unique_word_count else 0
 
     @property
-    def vocabulary_stemming_index(self) -> float:
-        return self.unique_stem_count / self.unique_word_count if self.unique_word_count else 0
+    def total_stemming_ratio(self) -> float:
+        return self.total_stem_count / self.total_word_count if self.total_word_count else 0
 
     def as_dict(self) -> dict:
         return {
             "unique_word_count": self.unique_word_count,
             "unique_stem_count": self.unique_stem_count,
+            "unique_stemming_ratio": self.unique_stemming_ratio,
             "total_word_count": self.total_word_count,
             "total_stem_count": self.total_stem_count,
-            "vocabulary_stemming_index": self.vocabulary_stemming_index,
-            "overall_stemming_index": self.overall_stemming_index,
+            "total_stemming_ratio": self.total_stemming_ratio,
         }
 
 
