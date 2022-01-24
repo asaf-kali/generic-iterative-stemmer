@@ -258,6 +258,12 @@ class StemmingTrainer:
     def iteration_folders_paths(self) -> List[str]:
         return [os.path.join(self.corpus_folder, folder_name) for folder_name in self.iteration_folders_names]
 
+    @property
+    def last_completed_iteration_folder(self) -> str:
+        if self.completed_iterations < 1:
+            raise StemmingTrainerError("No completed iterations yet.")
+        return get_iteration_folder(self.corpus_folder, iteration_number=self.completed_iterations)
+
     def train(self, save_stem_dict_when_done: bool = True):
         log.info("Starting iterations stemmer training...")
         while True:
@@ -338,12 +344,6 @@ class StemmingTrainer:
         reduced_stem_dict = reduce_stem_dict(stem_dict)
         sorted_stem_dict = sort_dict_by_values(reduced_stem_dict)
         return sorted_stem_dict
-
-    @property
-    def last_completed_iteration_folder(self) -> str:
-        if self.completed_iterations < 1:
-            raise StemmingTrainerError("No completed iterations yet.")
-        return get_iteration_folder(self.corpus_folder, iteration_number=self.completed_iterations)
 
     def save_stem_dict(self):
         if self.completed_iterations == 0:
