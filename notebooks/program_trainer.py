@@ -16,38 +16,36 @@ def main():
 
     training_program = [
         IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.80, max_edit_distance=0)),
-        IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.80
+                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.82
             ),
             training_params={"epochs": 8},
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.75
+                min_cosine_similarity=0.72, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.78
             )
         ),
-        IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.70, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.70
+                min_cosine_similarity=0.70, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.80
             ),
             training_params={"epochs": 8},
         ),
     ]
 
-    corpus_name = "wiki-he-cbow"
+    corpus_name = "wiki-he-cbow-150"
     corpus_folder = get_path(corpus_name)
     training_params = {"vector_size": 150, "epochs": 7, "window": 7}
-    default_stemming_params = {"min_cosine_similarity": 0.68}
+    default_stemming_params = {"min_cosine_similarity": 0.68, "min_cosine_similarity_for_edit_distance": 0.75}
     # trainer = FastTextStemmingTrainer(
     #     corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
     # )
     trainer = Word2VecStemmingTrainer(
         corpus_folder=corpus_folder,
-        max_iterations=8,
-        completed_iterations=6,
+        max_iterations=10,
+        completed_iterations=0,
         training_program=training_program,
         default_training_params=training_params,
         default_stem_generator_params=default_stemming_params,
