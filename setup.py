@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="generic-iterative-stemmer",
-    version="0.2.0",
+    version="0.3.1",
     description="A generic language stemming utility, dedicated for gensim word-embedding.",
     author="Asaf Kali",
     author_email="asaf.kali@mail.huji.ac.il",

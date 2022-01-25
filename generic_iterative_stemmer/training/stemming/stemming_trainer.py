@@ -47,11 +47,12 @@ def get_stemming_trainer_state_path(base_folder: str) -> str:
 
 @dataclass
 class StemmingIterationStats:
+    iteration_number: int
     initial_vocab_size: Optional[int] = None
-    stem_dict: Optional[dict] = None
-    stem_generator_params: Optional[dict] = None
     time_measures: dict = field(default_factory=dict)
+    stem_generator_params: Optional[dict] = None
     stem_corpus_result: Optional[StemCorpusResult] = None
+    stem_dict: Optional[dict] = None
 
     @property
     def stem_dict_size(self) -> int:
@@ -59,6 +60,7 @@ class StemmingIterationStats:
 
     def as_dict(self) -> dict:
         return {
+            "iteration_number": self.iteration_number,
             "initial_vocab_size": self.initial_vocab_size,
             "stem_dict_size": self.stem_dict_size,
             "time_measures": self.time_measures,
@@ -96,7 +98,7 @@ class StemmingIterationTrainer:
         self.iteration_number = iteration_number
         self.corpus_folder = corpus_folder
         self.model = base_model
-        self.stats = StemmingIterationStats()
+        self.stats = StemmingIterationStats(self.iteration_number)
         self.training_params = training_params or {}
 
     @property
@@ -243,8 +245,8 @@ class StemmingTrainer:
             "completed_iterations": self.completed_iterations,
             "max_iterations": self.max_iterations,
             "is_fully_stemmed": self.is_fully_stemmed,
-            "default_stem_generator_params": self.default_stem_generator_params,
             "default_training_params": self.default_training_params,
+            "default_stem_generator_params": self.default_stem_generator_params,
         }
 
     @property
