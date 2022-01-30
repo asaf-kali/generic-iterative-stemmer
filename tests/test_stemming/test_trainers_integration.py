@@ -22,8 +22,8 @@ from generic_iterative_stemmer.training.stemming import (
 from generic_iterative_stemmer.training.stemming.default_stem_generator import (
     DefaultStemGenerator,
 )
-from generic_iterative_stemmer.training.stemming.illegal_words_stemmer import (
-    IllegalWordsStemmer,
+from generic_iterative_stemmer.training.stemming.fixed_vocabulary_stem_generator import (
+    FixedVocabularyStemGenerator,
 )
 from generic_iterative_stemmer.training.stemming.stemming_trainer import (
     IterationProgram,
@@ -156,11 +156,13 @@ class TestStemmingTrainersIntegration:
         trainer.run_iteration()
         assert trainer.last_completed_iteration_folder.endswith("iter-2")
 
-    def test_illegal_words_stemmer(self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]):
+    def test_fixed_vocabulary_stem_generator(
+        self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
+    ):
         legal_words = ["קוד", "פונקציה", "לינוקס", "פיתוח", "שפה"]
         trainer = trainer_class(
             corpus_folder=corpus_resource.test_runtime_corpus_folder,
-            default_stem_generator_class=IllegalWordsStemmer,
+            default_stem_generator_class=FixedVocabularyStemGenerator,
             default_stem_generator_params={"legal_words": legal_words},
         )
         trainer.train()
@@ -177,7 +179,7 @@ class TestStemmingTrainersIntegration:
         stemming_program = [
             DefaultStemGenerator(min_cosine_similarity_for_edit_distance=0.4, max_edit_distance=4),
             DefaultStemGenerator(min_cosine_similarity_for_edit_distance=0.3, max_edit_distance=4),
-            IllegalWordsStemmer(legal_words=legal_words),
+            FixedVocabularyStemGenerator(legal_words=legal_words),
         ]
         training_program = [IterationProgram(stem_generator=generator) for generator in stemming_program]
         trainer = trainer_class(
@@ -197,7 +199,7 @@ class TestStemmingTrainersIntegration:
         assert STEM_GENERATOR_PARAMS.items() <= last_stem_generator.params.items()
 
         # Corpus deletion validation (not related to this test...)
-        sleep(0.1)
+        sleep(0.5)
         for i in range(1, 6):
             iteration_directory = get_iteration_folder(corpus_resource.test_runtime_corpus_folder, iteration_number=i)
             iteration_corpus_path = get_corpus_path(iteration_directory)

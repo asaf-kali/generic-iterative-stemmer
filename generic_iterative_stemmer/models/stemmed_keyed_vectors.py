@@ -30,6 +30,10 @@ def save_stem_dict(stem_dict: dict, model_path: str):
     log.debug(f"Stem dict saved: {stem_dict_path}.")
 
 
+def validate_stem_dict_is_reduced(stem_dict: dict):
+    return set(stem_dict.keys()).intersection(set(stem_dict.values())) == set()
+
+
 class StemmedKeyedVectors:
     def __init__(self, kv: KeyedVectors, stem_dict: dict):
         self.kv = kv

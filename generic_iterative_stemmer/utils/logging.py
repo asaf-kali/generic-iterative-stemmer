@@ -1,9 +1,62 @@
+import json
 import logging
 import sys
-from datetime import timedelta
-from logging import Filter
+from datetime import datetime, timedelta
+from logging import Filter, Formatter, Logger, LogRecord
 from logging.config import dictConfig
 from time import time
+
+
+class ExtraDataLogger(Logger):
+    def _log(self, *args, **kwargs) -> None:
+        extra = kwargs.get("extra")
+        if extra is not None:
+            kwargs["extra"] = {"extra": extra}
+        super()._log(*args, **kwargs)  # noqa
+
+
+class ExtraDataFormatter(Formatter):
+    def format(self, record: LogRecord) -> str:
+        message = super().format(record)
+        extra = getattr(record, "extra", None)
+        if extra:
+            message += f" extra: {extra}"
+        return message
+
+
+class JsonFormatter(Formatter):
+    def __init__(self, detailed: bool = False, pretty_json: bool = False):
+        super().__init__()
+        self.detailed = detailed
+        self.indent = 2 if pretty_json else None
+        self.tz = datetime.now().astimezone().tzinfo
+
+    def format(self, record: LogRecord) -> str:
+        data: dict = {
+            "datetime": datetime.fromtimestamp(record.created, self.tz).isoformat(sep=" ", timespec="milliseconds"),
+            "message": record.msg or record.message,
+        }
+        extra = getattr(record, "extra", None)
+        if extra:
+            data["extra"] = extra
+        if self.detailed:
+            data.update(
+                {
+                    "level": record.levelname,
+                    "func_name": record.funcName,
+                    "module": record.module,
+                    "file_path": record.pathname,
+                    "line_number": record.lineno,
+                    "process": record.process,
+                    "thread": record.thread,
+                    "process_name": record.processName,
+                    "thread_name": record.threadName,
+                    "exc_info": record.exc_info,
+                    "level_code": record.levelno,
+                    "timestamp": record.created,
+                }
+            )
+        return json.dumps(data, indent=self.indent, ensure_ascii=False)
 
 
 class LevelRangeFilter(Filter):
@@ -18,24 +71,34 @@ class LevelRangeFilter(Filter):
         return False
 
 
+logging.setLoggerClass(ExtraDataLogger)
+
 log = logging.getLogger(__name__)
 
 
-def get_logging_config(formatter: str = None, level: str = None) -> dict:
-    return {
+def configure_logging(formatter: str = None, level: str = None, detailed_json: bool = True, pretty_json: bool = False):
+    config = {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
             "simple": {
+                "class": "generic_iterative_stemmer.utils.ExtraDataFormatter",
                 "format": "[%(asctime)s] %(message)s [%(name)s]",
                 "datefmt": "%H:%M:%S",
             },
             "debug": {
+                "class": "generic_iterative_stemmer.utils.ExtraDataFormatter",
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
                 "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
+            "json": {
+                "()": "generic_iterative_stemmer.utils.JsonFormatter",
+                "detailed": detailed_json,
+                "pretty_json": pretty_json,
+            },
             "test": {
+                "class": "generic_iterative_stemmer.utils.ExtraDataFormatter",
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s "
                 "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%H:%M:%S",
@@ -56,22 +119,18 @@ def get_logging_config(formatter: str = None, level: str = None) -> dict:
                 "class": "logging.StreamHandler",
                 "filters": ["err_filter"],
                 "formatter": formatter or "debug",
-                "stream": sys.stdout,
-                # "stream": sys.stderr,
+                # "stream": sys.stdout,
+                "stream": sys.stderr,
             },
             "file": {
                 "class": "logging.FileHandler",
                 "filename": "run.log",
-                "formatter": formatter or "debug",
+                "formatter": "json",
             },
         },
         "root": {"handlers": ["console_out", "console_err", "file"], "level": level or "DEBUG"},
         "loggers": {"gensim": {"level": "INFO"}, "smart_open": {"level": "WARN"}},
     }
-
-
-def configure_logging(formatter: str = None, level: str = None):
-    config = get_logging_config(formatter=formatter, level=level)
     dictConfig(config)
     log.debug("Logging configured")
 
