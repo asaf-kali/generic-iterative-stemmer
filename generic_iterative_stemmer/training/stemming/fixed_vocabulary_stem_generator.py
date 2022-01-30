@@ -8,7 +8,7 @@ from generic_iterative_stemmer.training.stemming import StemDict, StemGenerator
 log = logging.getLogger(__name__)
 
 
-class IllegalWordsStemmer(StemGenerator):
+class FixedVocabularyStemGenerator(StemGenerator):
     def __init__(self, legal_words: Iterable[str], workers_amount: int = 5):
         super().__init__(workers_amount=workers_amount)
         self.legal_words = set(legal_words)
