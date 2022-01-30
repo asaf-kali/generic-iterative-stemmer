@@ -40,8 +40,14 @@ def hebrew_tokenizer(
     return no_suffix
 
 
-def hebrew_tokenizer_no_suffix(*args, **kwargs):
-    return hebrew_tokenizer(*args, **kwargs, replace_hebrew_suffix=True)
+def hebrew_tokenizer_no_suffix(content: str, token_min_len: int, token_max_len: int) -> List[str]:
+    return hebrew_tokenizer(
+        content=content,
+        token_min_len=token_min_len,
+        token_max_len=token_max_len,
+        lower=False,
+        replace_hebrew_suffix=True,
+    )
 
 
 def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, tokenizer_func: Callable = tokenize):

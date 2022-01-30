@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Mapping
 
 from gensim.models import KeyedVectors
 from tqdm import tqdm
@@ -15,12 +15,20 @@ StemDict = Dict[str, str]
 class StemGenerator:
     def __init__(self, workers_amount: int = 5):
         self.workers_amount = workers_amount
+        self.model: KeyedVectors = None  # type: ignore
+        self.word_to_index: Mapping = None  # type: ignore
+        self.vocab_size = 0
 
-    def find_word_inflections(self, model: KeyedVectors, word: str) -> StemDict:
+    def find_word_inflections(self, word: str) -> StemDict:
         """
         Find which other words in the vocabulary can be stemmed down to this word.
         """
         raise NotImplementedError()
+
+    def set_model(self, model: KeyedVectors):
+        self.model = model
+        self.word_to_index = model.key_to_index
+        self.vocab_size = len(self.word_to_index)
 
     @property
     def params(self) -> dict:
@@ -32,10 +40,11 @@ class StemGenerator:
     def generate_stemming_dict(self, model: KeyedVectors, vocabulary: Iterable[str]) -> StemDict:
         log.info("Generating stem dict for words...")
         model_stem_dict = {}
+        self.set_model(model)
         with AsyncTaskManager(workers_amount=self.workers_amount) as task_manager:
             log.debug("Appending stemming tasks...")
             for word in tqdm(vocabulary, desc="Add stemming tasks"):
-                task_manager.add_task(self.find_word_inflections, args=(model, word))
+                task_manager.add_task(self.find_word_inflections, args=(word,))
             log.debug("Collecting stemming results...")
             for result in tqdm(task_manager, total=task_manager.total_task_count, desc="Generate stem dict"):
                 model_stem_dict.update(result)

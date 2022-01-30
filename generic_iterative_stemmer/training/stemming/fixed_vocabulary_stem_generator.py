@@ -1,8 +1,6 @@
 import logging
 from typing import Iterable
 
-from gensim.models import KeyedVectors
-
 from generic_iterative_stemmer.training.stemming import StemDict, StemGenerator
 
 log = logging.getLogger(__name__)
@@ -16,10 +14,10 @@ class FixedVocabularyStemGenerator(StemGenerator):
     def is_legal(self, word: str) -> bool:
         return word in self.legal_words
 
-    def find_word_inflections(self, model: KeyedVectors, word: str) -> StemDict:
+    def find_word_inflections(self, word: str) -> StemDict:
         if self.is_legal(word):
             return {}
-        similarities = model.most_similar(word, topn=5)
+        similarities = self.model.most_similar(word, topn=5)
         first_similarity = similarities[0]
         return {word: first_similarity[0]}
         # similarities = model.most_similar(word, topn=20)

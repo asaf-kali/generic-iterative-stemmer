@@ -1,9 +1,11 @@
+import logging
 from typing import Optional
 
 import editdistance
-from gensim.models import KeyedVectors
 
 from generic_iterative_stemmer.training.stemming import StemDict, StemGenerator
+
+log = logging.getLogger(__name__)
 
 
 class DefaultStemGenerator(StemGenerator):
@@ -22,32 +24,45 @@ class DefaultStemGenerator(StemGenerator):
         self.max_len_diff = max_len_diff
         self.max_edit_distance = max_edit_distance
 
-    def find_word_inflections(self, model: KeyedVectors, word: str) -> StemDict:
+    def find_word_inflections(self, word: str) -> StemDict:
         """
         Find which other words in the vocabulary can be stemmed down to this word.
         """
-        similarities = model.most_similar(word, topn=self.k)
+        similarities = self.model.most_similar(word, topn=self.k)
         stem_dict = {}
-        for candidate, grade in similarities:
+        for inflection, grade in similarities:
             if grade < self.min_cosine_similarity:
                 continue
-            if len(candidate) <= len(word):
+            if len(inflection) <= len(word):
                 continue
-            w2i = model.key_to_index
-            if w2i[candidate] < w2i[word]:
+            word_frequency, inflection_frequency = self.get_frequency(word), self.get_frequency(inflection)
+            if word_frequency < inflection_frequency:
                 continue
-            if word not in candidate:
+            if word not in inflection:
                 if self.max_edit_distance is None:
                     continue
-                edit_distance = editdistance.eval(word, candidate)
+                edit_distance = editdistance.eval(word, inflection)
                 if edit_distance > self.max_edit_distance:
                     continue
                 if grade < self.min_cosine_similarity_for_edit_distance:
                     continue
-            if self.max_len_diff and abs(len(word) - len(candidate)) > self.max_len_diff:
+            if self.max_len_diff and abs(len(word) - len(inflection)) > self.max_len_diff:
                 continue
-            stem_dict[candidate] = word
+            log.debug(
+                f"Reducing '{inflection}' to '{word}'",
+                extra={
+                    "stem": word,
+                    "inflection": inflection,
+                    "grade": grade,
+                    "stem_frequency": word_frequency,
+                    "inflection_frequency": inflection_frequency,
+                },
+            )
+            stem_dict[inflection] = word
         return stem_dict
+
+    def get_frequency(self, word: str) -> float:
+        return 1 - self.word_to_index[word] / self.vocab_size
 
     @property
     def params(self) -> dict:
