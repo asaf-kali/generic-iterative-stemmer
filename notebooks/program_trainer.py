@@ -12,7 +12,7 @@ from generic_iterative_stemmer.utils import configure_logging, get_path
 
 
 def main():
-    configure_logging()
+    configure_logging(detailed_json=False, pretty_json=True, level="INFO")
 
     training_program = [
         IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
@@ -35,16 +35,16 @@ def main():
         ),
     ]
 
-    corpus_name = "wiki-he-ft-150"
+    corpus_name = "wiki-he-cbow-150"
     corpus_folder = get_path(corpus_name)
     training_params = {"vector_size": 150, "epochs": 7, "window": 7}
     default_stemming_params = {"min_cosine_similarity": 0.62, "min_cosine_similarity_for_edit_distance": 0.75}
     # trainer = FastTextStemmingTrainer(
     #     corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
     # )
-    trainer = FastTextStemmingTrainer(
+    trainer = Word2VecStemmingTrainer(
         corpus_folder=corpus_folder,
-        max_iterations=10,
+        max_iterations=1,
         completed_iterations=0,
         training_program=training_program,
         default_training_params=training_params,

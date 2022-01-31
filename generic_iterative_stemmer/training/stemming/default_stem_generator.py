@@ -30,8 +30,8 @@ class DefaultStemGenerator(StemGenerator):
         """
         similarities = self.model.most_similar(word, topn=self.k)
         stem_dict = {}
-        for inflection, grade in similarities:
-            if grade < self.min_cosine_similarity:
+        for inflection, cosine_similarity in similarities:
+            if cosine_similarity < self.min_cosine_similarity:
                 continue
             if len(inflection) <= len(word):
                 continue
@@ -44,7 +44,7 @@ class DefaultStemGenerator(StemGenerator):
                 edit_distance = editdistance.eval(word, inflection)
                 if edit_distance > self.max_edit_distance:
                     continue
-                if grade < self.min_cosine_similarity_for_edit_distance:
+                if cosine_similarity < self.min_cosine_similarity_for_edit_distance:
                     continue
             if self.max_len_diff and abs(len(word) - len(inflection)) > self.max_len_diff:
                 continue
@@ -53,9 +53,9 @@ class DefaultStemGenerator(StemGenerator):
                 extra={
                     "stem": word,
                     "inflection": inflection,
-                    "grade": grade,
-                    "stem_frequency": word_frequency,
-                    "inflection_frequency": inflection_frequency,
+                    "grade": round(cosine_similarity, 3),
+                    "stem_frequency": round(word_frequency, 3),
+                    "inflection_frequency": round(inflection_frequency, 3),
                 },
             )
             stem_dict[inflection] = word
