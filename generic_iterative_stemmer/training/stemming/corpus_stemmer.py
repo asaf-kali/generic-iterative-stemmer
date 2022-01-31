@@ -39,10 +39,10 @@ class StemCorpusResult:
         return {
             "unique_word_count": self.unique_word_count,
             "unique_stem_count": self.unique_stem_count,
-            "unique_stemming_ratio": self.unique_stemming_ratio,
+            "unique_stemming_ratio": round(self.unique_stemming_ratio, 3),
             "total_word_count": self.total_word_count,
             "total_stem_count": self.total_stem_count,
-            "total_stemming_ratio": self.total_stemming_ratio,
+            "total_stemming_ratio": round(self.total_stemming_ratio, 3),
         }
 
 

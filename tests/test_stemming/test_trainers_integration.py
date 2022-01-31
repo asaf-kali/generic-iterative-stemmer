@@ -201,8 +201,8 @@ class TestStemmingTrainersIntegration:
         # Corpus deletion validation (not related to this test...)
         sleep(0.5)
         for i in range(1, 6):
-            iteration_directory = get_iteration_folder(corpus_resource.test_runtime_corpus_folder, iteration_number=i)
-            iteration_corpus_path = get_corpus_path(iteration_directory)
+            iteration_folder = get_iteration_folder(corpus_resource.test_runtime_corpus_folder, iteration_number=i)
+            iteration_corpus_path = get_corpus_path(iteration_folder)
             iteration_corpus_exists = os.path.exists(iteration_corpus_path)
             if i == 1 or i == 5:
                 assert iteration_corpus_exists

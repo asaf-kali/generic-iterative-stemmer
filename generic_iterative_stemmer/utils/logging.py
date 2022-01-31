@@ -148,7 +148,7 @@ class MeasureTime:
 
     @property
     def delta(self) -> float:
-        return self.duration.total_seconds()
+        return round(self.duration.total_seconds(), 3)
 
     @property
     def duration(self) -> timedelta:
