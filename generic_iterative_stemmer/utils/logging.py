@@ -129,7 +129,11 @@ def configure_logging(formatter: str = None, level: str = None, detailed_json: b
             },
         },
         "root": {"handlers": ["console_out", "console_err", "file"], "level": level or "DEBUG"},
-        "loggers": {"gensim": {"level": "INFO"}, "smart_open": {"level": "WARN"}},
+        "loggers": {
+            "gensim": {"level": "INFO"},
+            "smart_open": {"level": "WARN"},
+            "matplotlib": {"propagate": False},
+        },
     }
     dictConfig(config)
     log.debug("Logging configured")
