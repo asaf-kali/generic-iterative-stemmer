@@ -1,5 +1,4 @@
 import difflib
-import logging
 import os
 from collections import defaultdict
 from dataclasses import dataclass
@@ -7,10 +6,10 @@ from typing import Any, Dict, List, TypeVar
 
 import numpy as np
 
-from generic_iterative_stemmer.training.stemming import StemDict
-from generic_iterative_stemmer.utils import Serializable
+from ...training.stemming import StemDict
+from ...utils import Serializable, get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 T = TypeVar("T")
 Histogram = Dict[Any, float]
 HistogramByLength = Dict[int, Histogram]

@@ -1,8 +1,8 @@
-import logging
-
 from gensim.models import FastText
 
-log = logging.getLogger(__name__)
+from ...utils import get_logger
+
+log = get_logger(__name__)
 
 
 def train(

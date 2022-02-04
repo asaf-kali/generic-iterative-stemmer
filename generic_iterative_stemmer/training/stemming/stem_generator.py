@@ -1,13 +1,12 @@
-import logging
 from typing import Dict, Iterable, Mapping
 
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from ...utils import sort_dict_by_values
+from ...utils import get_logger, sort_dict_by_values
 from ...utils.async_task_manager import AsyncTaskManager
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 StemDict = Dict[str, str]
 

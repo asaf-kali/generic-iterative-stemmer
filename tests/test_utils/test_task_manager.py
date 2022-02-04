@@ -1,13 +1,13 @@
-import logging
 from queue import Empty
 from random import random
 from time import sleep
 
 import pytest
 
+from generic_iterative_stemmer.utils import get_logger
 from generic_iterative_stemmer.utils.async_task_manager import AsyncTaskManager
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 def dummy_task(x: int, duration: float = None):

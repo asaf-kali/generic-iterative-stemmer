@@ -1,4 +1,3 @@
-import logging
 import re
 from typing import Callable, List
 
@@ -6,7 +5,9 @@ from gensim.corpora import WikiCorpus
 from gensim.corpora.wikicorpus import tokenize
 from tqdm import tqdm
 
-log = logging.getLogger(__name__)
+from ...utils import get_logger
+
+log = get_logger(__name__)
 
 HEBREW_WORD_PATTERN = re.compile(r"[\u0590-\u05FF\-']+")
 HEBREW_WIKI_REPLACE_PATTERN = re.compile(r"[\u0591-\u05C7]|'''|''")

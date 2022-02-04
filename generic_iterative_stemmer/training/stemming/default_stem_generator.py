@@ -1,11 +1,11 @@
-import logging
 from typing import Optional
 
 import editdistance
 
-from generic_iterative_stemmer.training.stemming import StemDict, StemGenerator
+from ...training.stemming import StemDict, StemGenerator
+from ...utils import get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class DefaultStemGenerator(StemGenerator):

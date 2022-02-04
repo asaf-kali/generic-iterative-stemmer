@@ -1,12 +1,12 @@
-import logging
 from dataclasses import dataclass
 from typing import Set
 
 from tqdm import tqdm
 
+from ...utils import get_logger
 from ..stemming import StemDict
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 @dataclass
