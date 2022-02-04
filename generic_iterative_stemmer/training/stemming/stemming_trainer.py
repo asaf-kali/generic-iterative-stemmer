@@ -1,6 +1,5 @@
 import copy
 import json
-import logging
 import os.path
 import re
 import shutil
@@ -17,12 +16,18 @@ from ...models import (
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import MeasureTime, loader, remove_file_exit_ok, sort_dict_by_values
+from ...utils import (
+    MeasureTime,
+    get_logger,
+    loader,
+    remove_file_exit_ok,
+    sort_dict_by_values,
+)
 from . import StemDict, StemGenerator, reduce_stem_dict
 from .corpus_stemmer import StemCorpusResult, stem_corpus
 from .default_stem_generator import DefaultStemGenerator
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 ITER_FOLDER_PATTERN = re.compile(r"iter-\d+")
 
@@ -135,7 +140,9 @@ class StemmingIterationTrainer:
         log.info(f"Running stemming iteration number {self.iteration_number}.")
         with MeasureTime() as mt:
             self.model = self._try_load_trained_model()
-            if not self.model:
+            if self.model:
+                log.info("Found existing model for iteration, skipping training.")
+            else:
                 self.model = self.train_model()
             self.generate_stemmed_corpus()
             log.info(f"Stemming iteration {self.iteration_number} completed.")
@@ -154,6 +161,7 @@ class StemmingIterationTrainer:
             log.warning(f"Failed to copy base corpus into first iteration folder: {e}")
 
     def train_model(self) -> KeyedVectors:
+        log.info(f"Training model for iteration {self.iteration_number}.")
         self._first_iteration_check()
         with MeasureTime() as mt:
             model = self.trainer.train_model_on_corpus(

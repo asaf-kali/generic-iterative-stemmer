@@ -1,9 +1,10 @@
-import logging
 import os
 
 from gensim.models import KeyedVectors, Word2Vec, fasttext
 
-log = logging.getLogger(__name__)
+from ..utils import get_logger
+
+log = get_logger(__name__)
 
 DATA_FOLDER = os.getenv("DATA_FOLDER_PATH", "./data")
 

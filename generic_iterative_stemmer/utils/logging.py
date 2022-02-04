@@ -7,12 +7,24 @@ from logging.config import dictConfig
 from time import time
 
 
-class ExtraDataLogger(Logger):
+class ContextLogger(Logger):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.context = {}
+
     def _log(self, *args, **kwargs) -> None:
         extra = kwargs.get("extra")
-        if extra is not None:
-            kwargs["extra"] = {"extra": extra}
+        kwargs["extra"] = {"extra": extra, "context": self.context}
         super()._log(*args, **kwargs)  # noqa
+
+    def update_context(self, data: dict):
+        self.context.update(data)
+
+    def set_context(self, data: dict):
+        self.context = data
+
+    def reset_context(self):
+        self.set_context({})
 
 
 class ExtraDataFormatter(Formatter):
@@ -54,6 +66,7 @@ class JsonFormatter(Formatter):
                     "exc_info": record.exc_info,
                     "level_code": record.levelno,
                     "timestamp": record.created,
+                    "context": getattr(record, "context", None),
                 }
             )
         return json.dumps(data, indent=self.indent, ensure_ascii=False)
@@ -71,9 +84,14 @@ class LevelRangeFilter(Filter):
         return False
 
 
-logging.setLoggerClass(ExtraDataLogger)
+logging.setLoggerClass(ContextLogger)
 
-log = logging.getLogger(__name__)
+
+def get_logger(name: str) -> ContextLogger:
+    return logging.getLogger(name)  # type: ignore
+
+
+log = get_logger(__name__)
 
 
 def configure_logging(formatter: str = None, level: str = None, detailed_json: bool = True, pretty_json: bool = False):

@@ -1,9 +1,10 @@
-import logging
 import queue
 from threading import Thread
 from typing import Any, Callable, ContextManager, Iterable, Mapping, Optional
 
-log = logging.getLogger(__name__)
+from ..utils import get_logger
+
+log = get_logger(__name__)
 STOP = -1
 STOP_TASK = (
     STOP,

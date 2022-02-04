@@ -1,10 +1,11 @@
-import logging
 import multiprocessing
 
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 
-log = logging.getLogger(__name__)
+from ...utils import get_logger
+
+log = get_logger(__name__)
 
 
 def train(
