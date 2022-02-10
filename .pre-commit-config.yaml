@@ -9,7 +9,10 @@ repos:
         exclude: ".ipynb"
       - id: check-yaml
       - id: check-added-large-files
-  - repo: https://github.com/asaf-kali/generic-iterative-stemmer
-    rev: 4ecd74696944069875170a430eb52df1a163c4b8
+  - repo: local
     hooks:
       - id: lint
+        name: run lint command
+        entry: "make lint-only"
+        language: system
+        pass_filenames: false
