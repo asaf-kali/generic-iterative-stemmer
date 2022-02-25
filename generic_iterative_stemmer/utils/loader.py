@@ -3,10 +3,9 @@ import os
 from gensim.models import KeyedVectors, Word2Vec, fasttext
 
 from ..utils import get_logger
+from . import Settings
 
 log = get_logger(__name__)
-
-DATA_FOLDER = os.getenv("DATA_FOLDER_PATH", "./data")
 
 
 def load_kv(kv_path: str) -> KeyedVectors:
@@ -28,4 +27,4 @@ def load_ft_model(model_path: str):
 
 
 def get_path(*path: str) -> str:
-    return os.path.join(DATA_FOLDER, *path)
+    return os.path.join(Settings.data_folder, *path)
