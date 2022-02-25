@@ -10,3 +10,4 @@ editdistance~=0.6
 
 # Utils
 tqdm~=4.62
+dynaconf~=3.1

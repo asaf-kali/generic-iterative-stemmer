@@ -1,5 +1,4 @@
 import difflib
-import os
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List, TypeVar
@@ -7,7 +6,7 @@ from typing import Any, Dict, List, TypeVar
 import numpy as np
 
 from ...training.stemming import StemDict
-from ...utils import Serializable, get_logger
+from ...utils import Serializable, Settings, get_logger
 
 log = get_logger(__name__)
 T = TypeVar("T")
@@ -129,7 +128,7 @@ def _filter_common_affixes_from_histogram(histogram: Histogram, affix_type: str,
 
 
 def plot_histogram(histogram: Histogram, title: str, x_label: str, y_label: str):
-    if not os.getenv("DEBUG"):
+    if not Settings.is_debug:
         return
 
     import matplotlib.pyplot as plt
