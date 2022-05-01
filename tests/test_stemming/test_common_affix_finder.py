@@ -14,7 +14,7 @@ log = get_logger(__name__)
 def test_find_common_affixes(small_stem_dict: StemDict):
     common_affixes_finder = CommonAffixesFinder(stem_dict=small_stem_dict)
     result = common_affixes_finder.find_common_affixes()
-    assert result.to_dict() == {
+    assert result.dict() == {
         "prefixes_by_length": {
             1: {"ו": 0.3113, "ה": 0.1744, "ב": 0.1032, "ש": 0.0912, "מ": 0.0871},
             2: {
@@ -62,7 +62,7 @@ def test_find_common_affixes(small_stem_dict: StemDict):
             },
         },
     }
-    log.info("result", extra={"result": result.to_dict()})
+    log.info("result", extra={"result": result.dict()})
 
 
 def test_identify_affixes():

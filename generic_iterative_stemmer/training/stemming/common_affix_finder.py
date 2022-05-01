@@ -4,9 +4,10 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, TypeVar
 
 import numpy as np
+from pydantic import BaseModel
 
 from ...training.stemming import StemDict
-from ...utils import Serializable, Settings, get_logger
+from ...utils import Settings, get_logger
 
 log = get_logger(__name__)
 T = TypeVar("T")
@@ -20,8 +21,7 @@ class Removal:
     letter: str
 
 
-@dataclass
-class AffixesByLength(Serializable):
+class AffixesByLength(BaseModel):
     prefixes_by_length: Dict[int, Histogram]
     suffixes_by_length: Dict[int, Histogram]
 
@@ -105,7 +105,7 @@ class CommonAffixesFinder:
 def _get_most_common_affixes(
     prefixes_by_length: HistogramByLength, suffixes_by_length: HistogramByLength
 ) -> AffixesByLength:
-    common_affixes = AffixesByLength({}, {})
+    common_affixes = AffixesByLength(prefixes_by_length={}, suffixes_by_length={})
     for length, histogram in prefixes_by_length.items():
         common_histogram = _filter_common_affixes_from_histogram(histogram, "prefix", length)
         common_affixes.prefixes_by_length[length] = common_histogram
