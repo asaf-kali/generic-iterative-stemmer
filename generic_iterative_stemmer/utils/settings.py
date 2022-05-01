@@ -24,10 +24,11 @@ class Settings:
     def reload(cls):
         log = get_logger(__name__)
         log.info("Loading settings")
-        cls._settings = Dynaconf(**os.environ)
+        settings_files = ["settings.toml", "local.toml"]
+        cls._settings = Dynaconf(environments=True, settings_files=settings_files, **os.environ)
 
     @classmethod
-    def get_attribute(cls, name: str, default: Any = None) -> Any:
+    def get(cls, name: str, default: Any = None) -> Any:
         return getattr(cls.cache, name, default)
 
     @classproperty
@@ -38,8 +39,14 @@ class Settings:
 
     @classproperty
     def is_debug(cls) -> bool:
-        return bool(cls.get_attribute("DEBUG", default=False))
+        return bool(cls.get("DEBUG", default=False))
 
     @classproperty
     def data_folder(cls) -> str:
-        return cls.get_attribute("DATA_FOLDER_PATH", default="./data")
+        rel_path = cls.get("DATA_FOLDER_PATH", default="~/.cache/language_data")
+        abs_path = absolute_path(rel_path)
+        return abs_path
+
+
+def absolute_path(path: str) -> str:
+    return os.path.abspath(os.path.expanduser(os.path.expandvars(path)))
