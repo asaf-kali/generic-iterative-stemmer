@@ -3,11 +3,12 @@ import json
 import os.path
 import re
 import shutil
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Type
 
 from gensim.models import KeyedVectors
+from pydantic import BaseModel, Field
 
 from ...errors import StemmingTrainerError
 from ...models import (
@@ -50,11 +51,10 @@ def get_stemming_trainer_state_path(base_folder: str) -> str:
     return os.path.join(base_folder, "stemming-trainer-state.json")
 
 
-@dataclass
-class StemmingIterationStats:
+class StemmingIterationStats(BaseModel):
     iteration_number: int
     initial_vocab_size: Optional[int] = None
-    time_measures: dict = field(default_factory=dict)
+    time_measures: dict = Field(default_factory=dict)
     stem_generator_params: Optional[dict] = None
     stem_corpus_result: Optional[StemCorpusResult] = None
     stem_dict: Optional[dict] = None
@@ -62,17 +62,6 @@ class StemmingIterationStats:
     @property
     def stem_dict_size(self) -> int:
         return 0 if self.stem_dict is None else len(self.stem_dict)
-
-    def as_dict(self) -> dict:
-        return {
-            "iteration_number": self.iteration_number,
-            "initial_vocab_size": self.initial_vocab_size,
-            "stem_dict_size": self.stem_dict_size,
-            "time_measures": self.time_measures,
-            "stem_generator_params": self.stem_generator_params,
-            "stem_corpus_result": self.stem_corpus_result.as_dict() if self.stem_corpus_result else None,
-            "stem_dict": self.stem_dict,
-        }
 
 
 @dataclass
@@ -103,7 +92,7 @@ class StemmingIterationTrainer:
         self.iteration_number = iteration_number
         self.corpus_folder = corpus_folder
         self.model = base_model
-        self.stats = StemmingIterationStats(self.iteration_number)
+        self.stats = StemmingIterationStats(iteration_number=self.iteration_number)
         self.training_params = training_params or {}
 
     @property
@@ -138,6 +127,7 @@ class StemmingIterationTrainer:
 
     def run_stemming_iteration(self) -> StemmingIterationStats:
         log.info(f"Running stemming iteration number {self.iteration_number}.")
+        self.load_stats()
         with MeasureTime() as mt:
             self.model = self._try_load_trained_model()
             if self.model:
@@ -182,7 +172,8 @@ class StemmingIterationTrainer:
 
     def generate_stemmed_corpus(self):
         self.stats.initial_vocab_size = len(self.model.key_to_index)
-        self.stats.stem_dict = self.generate_stem_dict()
+        if not self.stats.stem_dict:
+            self.stats.stem_dict = self.generate_stem_dict()
         self.save_stats()  # This is mandatory, as we have to save_stats before stem_corpus.
         if len(self.stats.stem_dict) == 0:
             log.info("Stem dict was empty, skipping corpus stemming.")
@@ -206,9 +197,18 @@ class StemmingIterationTrainer:
     def save_stats(self):
         stats_file = get_stats_path(self.iteration_folder)
         with open(stats_file, "w") as file:
-            stats_dict = self.stats.as_dict()
+            stats_dict = self.stats.dict()
             serialized = json.dumps(stats_dict, indent=2, ensure_ascii=False)
             file.write(serialized)
+
+    def load_stats(self):
+        stats_file = get_stats_path(self.iteration_folder)
+        try:
+            with open(stats_file) as file:
+                data = json.load(file)
+                self.stats = StemmingIterationStats(**data)
+        except Exception as e:  # noqa
+            pass
 
 
 class StemmingTrainer:

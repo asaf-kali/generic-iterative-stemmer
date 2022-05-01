@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from typing import Set
 
+from pydantic import BaseModel
 from tqdm import tqdm
 
 from ...utils import get_logger
@@ -9,15 +9,13 @@ from ..stemming import StemDict
 log = get_logger(__name__)
 
 
-@dataclass
-class StemSentenceResult:
+class StemSentenceResult(BaseModel):
     stemmed_sentence: str
     total_word_count: int
     total_stem_count: int
 
 
-@dataclass
-class StemCorpusResult:
+class StemCorpusResult(BaseModel):
     unique_stem_count: int
     unique_word_count: int = 0
     total_stem_count: int = 0
@@ -34,16 +32,6 @@ class StemCorpusResult:
     @property
     def total_stemming_ratio(self) -> float:
         return self.total_stem_count / self.total_word_count if self.total_word_count else 0
-
-    def as_dict(self) -> dict:
-        return {
-            "unique_word_count": self.unique_word_count,
-            "unique_stem_count": self.unique_stem_count,
-            "unique_stemming_ratio": round(self.unique_stemming_ratio, 3),
-            "total_word_count": self.total_word_count,
-            "total_stem_count": self.total_stem_count,
-            "total_stemming_ratio": round(self.total_stemming_ratio, 3),
-        }
 
 
 def stem_corpus(original_corpus_path: str, output_corpus_path: str, stem_dict: StemDict):

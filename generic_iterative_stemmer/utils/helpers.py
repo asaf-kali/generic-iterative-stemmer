@@ -1,6 +1,4 @@
-import dataclasses
 import os
-from dataclasses import dataclass
 
 
 def sort_dict_by_values(d: dict) -> dict:
@@ -13,12 +11,3 @@ def remove_file_exit_ok(file_path: str) -> bool:
         return True
     except:  # noqa
         return False
-
-
-@dataclass
-class Serializable:
-    def __dict__(self):
-        return self.to_dict()
-
-    def to_dict(self) -> dict:
-        return dataclasses.asdict(self)
