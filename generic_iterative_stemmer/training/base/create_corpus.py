@@ -1,14 +1,15 @@
 import re
-from typing import Callable, List
+from typing import Callable, List, Set
 
 from gensim.corpora import WikiCorpus
 from gensim.corpora.wikicorpus import tokenize
 from tqdm import tqdm
 
-from ...utils import get_logger
+from generic_iterative_stemmer.utils.logging import get_logger
 
 log = get_logger(__name__)
 
+HEBREW_LETTER_PATTERN = re.compile(r"[\u0590-\u05FF]")
 HEBREW_WORD_PATTERN = re.compile(r"[\u0590-\u05FF\-']+")
 HEBREW_WIKI_REPLACE_PATTERN = re.compile(r"[\u0591-\u05C7]|'''|''")
 JUNK_PATTERN = re.compile(r"''")
@@ -22,6 +23,33 @@ SUFFIX_LETTER_TO_NON_SUFFIX_LETTER = {
 HEBREW_SUFFIX_LETTERS = tuple(SUFFIX_LETTER_TO_NON_SUFFIX_LETTER.keys())
 
 
+class HebrewTokenizer:
+    def __init__(self, token_min_len: int, token_max_len: int, replace_hebrew_suffix: bool):
+        self.token_min_len = token_min_len
+        self.token_max_len = token_max_len
+        self.replace_hebrew_suffix = replace_hebrew_suffix
+        self.filtered_tokens: Set[str] = set()
+
+    def tokenize(self, content: str) -> List[str]:
+        content_without_scores = HEBREW_WIKI_REPLACE_PATTERN.sub("", content)
+        hebrew_tokens = [match.group() for match in HEBREW_WORD_PATTERN.finditer(content_without_scores)]
+        length_filtered = filter(self._should_keep_token, hebrew_tokens)
+        if not self.replace_hebrew_suffix:
+            return list(length_filtered)
+        no_suffix = [_replace_to_non_suffix_letter(token) for token in length_filtered]
+        # log.debug(f"Filtered {len(self.filtered_tokens)} tokens: {self.filtered_tokens}")
+        return no_suffix
+
+    def _should_keep_token(self, token: str) -> bool:
+        token_len = len(token)
+        if not self.token_min_len <= token_len <= self.token_max_len:
+            return False
+        if len(HEBREW_LETTER_PATTERN.findall(token)) < token_len <= 3:
+            self.filtered_tokens.add(token)
+            return False
+        return True
+
+
 def _replace_to_non_suffix_letter(token: str) -> str:
     if not token.endswith(HEBREW_SUFFIX_LETTERS):
         return token
@@ -32,21 +60,18 @@ def _replace_to_non_suffix_letter(token: str) -> str:
 def hebrew_tokenizer(
     content: str, token_min_len: int, token_max_len: int, lower: bool = False, replace_hebrew_suffix: bool = False
 ) -> List[str]:
-    content_without_scores = HEBREW_WIKI_REPLACE_PATTERN.sub("", content)
-    hebrew_tokens = [match.group() for match in HEBREW_WORD_PATTERN.finditer(content_without_scores)]
-    length_filtered = filter(lambda token: token_min_len <= len(token) <= token_max_len, hebrew_tokens)
-    if not replace_hebrew_suffix:
-        return list(length_filtered)
-    no_suffix = [_replace_to_non_suffix_letter(token) for token in length_filtered]
-    return no_suffix
+    tokenizer = HebrewTokenizer(
+        token_min_len=token_min_len, token_max_len=token_max_len, replace_hebrew_suffix=replace_hebrew_suffix
+    )
+    return tokenizer.tokenize(content)
 
 
-def hebrew_tokenizer_no_suffix(content: str, token_min_len: int, token_max_len: int) -> List[str]:
+def hebrew_tokenizer_no_suffix(content: str, token_min_len: int, token_max_len: int, lower: bool = False) -> List[str]:
     return hebrew_tokenizer(
         content=content,
         token_min_len=token_min_len,
         token_max_len=token_max_len,
-        lower=False,
+        lower=lower,
         replace_hebrew_suffix=True,
     )
 
@@ -64,9 +89,11 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, to
 
 
 if __name__ == "__main__":
-    from ...utils import configure_logging, get_path
+    from generic_iterative_stemmer.utils import configure_logging, get_path
 
     configure_logging()
-    articles = get_path("hewiki-latest-pages-articles.xml.bz2")
-    out = get_path("corpus-he.txt")
-    generate_wiki_corpus_file(articles, out, tokenizer_func=hebrew_tokenizer)
+    articles = get_path("hebrew", "wiki-he.xml.bz2")
+    out = get_path("corpus-he-no-suffix.txt")
+    generate_wiki_corpus_file(
+        articles_file_path=articles, output_file_path=out, tokenizer_func=hebrew_tokenizer_no_suffix
+    )
