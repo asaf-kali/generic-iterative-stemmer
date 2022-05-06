@@ -189,6 +189,7 @@ class StemmingIterationTrainer:
                 original_corpus_path=self.iteration_corpus_path,
                 output_corpus_path=self.next_iteration_corpus_path,
                 stem_dict=complete_stem_dict,
+                allowed_words=set(self.model.key_to_index.keys()),
             )
         self.stats.time_measures["stem_corpus"] = mt.delta
         if not self.is_first_iteration and os.path.exists(self.next_iteration_corpus_path):
