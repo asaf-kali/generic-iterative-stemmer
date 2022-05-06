@@ -15,7 +15,7 @@ def main():
     configure_logging(detailed_json=False, pretty_json=True, level="INFO")
 
     training_program = [
-        IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.75, max_edit_distance=0)),
+        IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.80, max_edit_distance=0)),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
                 min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.82
@@ -35,16 +35,16 @@ def main():
         ),
     ]
 
-    corpus_name = "skv-cbow-30"
+    corpus_name = "skv-cbow-50"
     corpus_folder = get_path("hebrew", corpus_name)
-    training_params = {"vector_size": 30, "epochs": 7, "window": 7}
-    default_stemming_params = {"min_cosine_similarity": 0.62, "min_cosine_similarity_for_edit_distance": 0.75}
+    training_params = {"vector_size": 50, "epochs": 7, "window": 15}
+    default_stemming_params = {"min_cosine_similarity": 0.75, "min_cosine_similarity_for_edit_distance": 0.80}
     # trainer = FastTextStemmingTrainer(
     #     corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
     # )
     trainer = Word2VecStemmingTrainer(
         corpus_folder=corpus_folder,
-        max_iterations=1,
+        max_iterations=2,
         completed_iterations=0,
         training_program=training_program,
         default_training_params=training_params,

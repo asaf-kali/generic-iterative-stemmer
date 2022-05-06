@@ -93,7 +93,5 @@ if __name__ == "__main__":
 
     configure_logging()
     articles = get_path("hebrew", "wiki-he.xml.bz2")
-    out = get_path("corpus-he-no-suffix.txt")
-    generate_wiki_corpus_file(
-        articles_file_path=articles, output_file_path=out, tokenizer_func=hebrew_tokenizer_no_suffix
-    )
+    out = get_path("corpus-he.txt")
+    generate_wiki_corpus_file(articles_file_path=articles, output_file_path=out, tokenizer_func=hebrew_tokenizer)
