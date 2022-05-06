@@ -15,21 +15,26 @@ def main():
     configure_logging(detailed_json=False, pretty_json=True, level="INFO")
 
     training_program = [
-        IterationProgram(stem_generator=DefaultStemGenerator(min_cosine_similarity=0.80, max_edit_distance=0)),
+        IterationProgram(
+            stem_generator=DefaultStemGenerator(min_cosine_similarity=0.80, max_edit_distance=0),
+            iteration_kwargs={
+                "remove_words_not_in_model": True,
+            },
+        ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.82
+                min_cosine_similarity=0.80, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.82
             ),
             training_params={"epochs": 8},
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.78
+                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.80
             )
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.73, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.8
+                min_cosine_similarity=0.75, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.80
             ),
             training_params={"epochs": 8},
         ),
@@ -37,14 +42,14 @@ def main():
 
     corpus_name = "skv-cbow-50"
     corpus_folder = get_path("hebrew", corpus_name)
-    training_params = {"vector_size": 50, "epochs": 7, "window": 15}
+    training_params = {"vector_size": 100, "epochs": 7, "window": 20}
     default_stemming_params = {"min_cosine_similarity": 0.75, "min_cosine_similarity_for_edit_distance": 0.80}
     # trainer = FastTextStemmingTrainer(
     #     corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
     # )
     trainer = Word2VecStemmingTrainer(
         corpus_folder=corpus_folder,
-        max_iterations=2,
+        max_iterations=0,
         completed_iterations=0,
         training_program=training_program,
         default_training_params=training_params,

@@ -58,6 +58,7 @@ class StemmingIterationStats(BaseModel):
     stem_generator_params: Optional[dict] = None
     stem_corpus_result: Optional[StemCorpusResult] = None
     stem_dict: Optional[dict] = None
+    training_params: Optional[dict] = None
 
     @property
     def stem_dict_size(self) -> int:
@@ -94,9 +95,11 @@ class StemmingIterationTrainer:
         self.iteration_number = iteration_number
         self.corpus_folder = corpus_folder
         self.model = base_model
-        self.stats = StemmingIterationStats(iteration_number=self.iteration_number)
-        self.remove_words_not_in_model = remove_words_not_in_model
         self.training_params = training_params or {}
+        self.remove_words_not_in_model = remove_words_not_in_model
+        self.stats = StemmingIterationStats(
+            iteration_number=self.iteration_number, training_params=self.training_params
+        )
 
     @property
     def iteration_folder(self) -> str:
@@ -177,7 +180,7 @@ class StemmingIterationTrainer:
         self.stats.initial_vocab_size = len(self.model.key_to_index)
         if not self.stats.stem_dict:
             self.stats.stem_dict = self.generate_stem_dict()
-        self.save_stats()  # This is mandatory, as we have to save_stats before stem_corpus.
+        self.save_stats()  # We have to save stats before stem_corpus for iteration stem dict to be in the state file.
         if len(self.stats.stem_dict) == 0:
             log.info("Stem dict was empty, skipping corpus stemming.")
             return
