@@ -3,7 +3,7 @@ import json
 import os.path
 import re
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Type
 
@@ -67,7 +67,8 @@ class StemmingIterationStats(BaseModel):
 @dataclass
 class IterationProgram:
     stem_generator: Optional[StemGenerator] = None
-    training_params: Optional[dict] = None
+    training_params: Optional[dict] = field(default_factory=dict)
+    iteration_kwargs: Optional[dict] = field(default_factory=dict)
 
 
 class StemmingIterationTrainer:
@@ -85,6 +86,7 @@ class StemmingIterationTrainer:
         iteration_number: int,
         corpus_folder: str,
         base_model: KeyedVectors = None,
+        remove_words_not_in_model: bool = False,
         training_params: dict = None,
     ):
         self.trainer = trainer
@@ -93,6 +95,7 @@ class StemmingIterationTrainer:
         self.corpus_folder = corpus_folder
         self.model = base_model
         self.stats = StemmingIterationStats(iteration_number=self.iteration_number)
+        self.remove_words_not_in_model = remove_words_not_in_model
         self.training_params = training_params or {}
 
     @property
@@ -184,12 +187,13 @@ class StemmingIterationTrainer:
         with MeasureTime() as mt:
             complete_stem_dict = self.trainer.collect_complete_stem_dict()
         self.stats.time_measures["collect_complete_stem_dict"] = mt.delta
+        allowed_words = set(self.model.key_to_index.keys()) if self.remove_words_not_in_model else None
         with MeasureTime() as mt:
             self.stats.stem_corpus_result = stem_corpus(
                 original_corpus_path=self.iteration_corpus_path,
                 output_corpus_path=self.next_iteration_corpus_path,
                 stem_dict=complete_stem_dict,
-                allowed_words=set(self.model.key_to_index.keys()),
+                allowed_words=allowed_words,
             )
         self.stats.time_measures["stem_corpus"] = mt.delta
         if not self.is_first_iteration and os.path.exists(self.next_iteration_corpus_path):
@@ -298,8 +302,10 @@ class StemmingTrainer:
 
     def run_iteration(self) -> StemmingIterationStats:
         iteration_number = self.completed_iterations + 1
-        stem_generator = self.get_stem_generator(iteration_number=iteration_number)
-        training_params = self.get_training_params(iteration_number=iteration_number)
+        iteration_program = self.get_iteration_program(iteration_number=iteration_number)
+        stem_generator = self.get_stem_generator(iteration_program=iteration_program)
+        training_params = self.get_training_params(iteration_program=iteration_program)
+        iteration_kwargs = iteration_program.iteration_kwargs if iteration_program else {}
         iteration_trainer = StemmingIterationTrainer(
             trainer=self,
             stem_generator=stem_generator,
@@ -307,6 +313,7 @@ class StemmingTrainer:
             corpus_folder=self.corpus_folder,
             base_model=self.latest_model,
             training_params=training_params,
+            **iteration_kwargs,  # type: ignore
         )
         iteration_stats = iteration_trainer.run_stemming_iteration()
         self.completed_iterations += 1
@@ -314,27 +321,24 @@ class StemmingTrainer:
         self.save_state()
         return iteration_stats
 
-    def get_training_params(self, iteration_number: int) -> dict:
-        training_params = copy.deepcopy(self.default_training_params)
+    def get_iteration_program(self, iteration_number: int) -> Optional[IterationProgram]:
         try:
-            iteration_program = self.training_program[iteration_number - 1]
+            return self.training_program[iteration_number - 1]
+        except IndexError:
+            return None
+
+    def get_training_params(self, iteration_program: Optional[IterationProgram]) -> dict:
+        training_params = copy.deepcopy(self.default_training_params)
+        if iteration_program:
             iteration_training_params = iteration_program.training_params or {}
             training_params.update(iteration_training_params)
-        except:  # noqa
-            pass
         return training_params
 
-    def get_stem_generator(self, iteration_number: int) -> StemGenerator:
-        stem_generator = None
-        try:
-            iteration_program = self.training_program[iteration_number - 1]
-            stem_generator = iteration_program.stem_generator
-        except IndexError:
-            pass
-        if stem_generator is None:
-            stem_generator_params = self.default_stem_generator_params
-            stem_generator = self.default_stem_generator_class(**stem_generator_params)
-        return stem_generator
+    def get_stem_generator(self, iteration_program: Optional[IterationProgram]) -> StemGenerator:
+        if iteration_program and iteration_program.stem_generator:
+            return iteration_program.stem_generator
+        stem_generator_params = self.default_stem_generator_params
+        return self.default_stem_generator_class(**stem_generator_params)
 
     def save_state(self):
         state_path = get_stemming_trainer_state_path(self.corpus_folder)
