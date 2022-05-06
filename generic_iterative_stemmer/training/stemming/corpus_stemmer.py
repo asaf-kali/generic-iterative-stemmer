@@ -25,6 +25,12 @@ class StemCorpusResult(BaseModel):
         self.total_word_count += stem_sentence_result.total_word_count
         self.total_stem_count += stem_sentence_result.total_stem_count
 
+    def dict(self, *args, **kwargs) -> dict:
+        result = super().dict(*args, **kwargs)
+        result["unique_stemming_ratio"] = round(self.unique_stemming_ratio, 3)
+        result["total_stemming_ratio"] = round(self.total_stemming_ratio, 3)
+        return result
+
     @property
     def unique_stemming_ratio(self) -> float:
         # The ratio of resulting unique stems to unique words in the corpus.
