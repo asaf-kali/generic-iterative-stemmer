@@ -40,16 +40,15 @@ def main():
         ),
     ]
 
-    corpus_name = "skv-cbow-50"
+    corpus_name = "skv-cbow-100"
     corpus_folder = get_path("hebrew", corpus_name)
     training_params = {"vector_size": 100, "epochs": 7, "window": 20}
     default_stemming_params = {"min_cosine_similarity": 0.75, "min_cosine_similarity_for_edit_distance": 0.80}
+    # trainer = Word2VecStemmingTrainer(
     # trainer = FastTextStemmingTrainer(
-    #     corpus_folder=corpus_folder, max_iterations=10, training_program=training_program
-    # )
     trainer = Word2VecStemmingTrainer(
         corpus_folder=corpus_folder,
-        max_iterations=0,
+        max_iterations=5,
         completed_iterations=0,
         training_program=training_program,
         default_training_params=training_params,
