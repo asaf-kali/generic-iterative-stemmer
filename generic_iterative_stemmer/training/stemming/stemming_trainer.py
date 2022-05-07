@@ -54,11 +54,11 @@ def get_stemming_trainer_state_path(base_folder: str) -> str:
 class StemmingIterationStats(BaseModel):
     iteration_number: int
     initial_vocab_size: Optional[int] = None
-    time_measures: dict = Field(default_factory=dict)
+    time_measures: dict = {}
+    training_params: Optional[dict] = None
     stem_generator_params: Optional[dict] = None
     stem_corpus_result: Optional[StemCorpusResult] = None
     stem_dict: Optional[dict] = None
-    training_params: Optional[dict] = None
 
     @property
     def stem_dict_size(self) -> int:
@@ -86,15 +86,15 @@ class StemmingIterationTrainer:
         stem_generator: StemGenerator,
         iteration_number: int,
         corpus_folder: str,
-        base_model: KeyedVectors = None,
+        model: Optional[KeyedVectors] = None,
         remove_words_not_in_model: bool = False,
-        training_params: dict = None,
+        training_params: Optional[dict] = None,
     ):
         self.trainer = trainer
         self.stem_generator = stem_generator
         self.iteration_number = iteration_number
         self.corpus_folder = corpus_folder
-        self.model = base_model
+        self.model = model
         self.training_params = training_params or {}
         self.remove_words_not_in_model = remove_words_not_in_model
         self.stats = StemmingIterationStats(
@@ -224,7 +224,6 @@ class StemmingTrainer:
         self,
         corpus_folder: str,
         completed_iterations: int = 0,
-        latest_model: Optional[KeyedVectors] = None,
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
         min_change_count: int = 0,
@@ -235,7 +234,6 @@ class StemmingTrainer:
     ):
         self.corpus_folder = corpus_folder
         self.completed_iterations = completed_iterations
-        self.latest_model = latest_model  # TODO: Think about that field.
         self.max_iterations = max_iterations
         self.is_fully_stemmed = is_fully_stemmed
         self.min_change_count = min_change_count
@@ -284,6 +282,7 @@ class StemmingTrainer:
 
     def train(self, save_stem_dict_when_done: bool = True):
         log.info("Starting iterations stemmer training...")
+        self.save_state()
         while True:
             if self.max_iterations and self.completed_iterations >= self.max_iterations:
                 log.info(f"Reached {self.completed_iterations} iterations, quitting.")
@@ -314,13 +313,11 @@ class StemmingTrainer:
             stem_generator=stem_generator,
             iteration_number=iteration_number,
             corpus_folder=self.corpus_folder,
-            base_model=self.latest_model,
             training_params=training_params,
             **iteration_kwargs,  # type: ignore
         )
         iteration_stats = iteration_trainer.run_stemming_iteration()
         self.completed_iterations += 1
-        self.latest_model = None
         self.save_state()
         return iteration_stats
 
