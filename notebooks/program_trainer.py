@@ -16,37 +16,35 @@ def main():
 
     training_program = [
         IterationProgram(
-            stem_generator=DefaultStemGenerator(min_cosine_similarity=0.80, max_edit_distance=0),
+            stem_generator=DefaultStemGenerator(min_cosine_similarity=0.85, max_edit_distance=0),
             iteration_kwargs={
                 "remove_words_not_in_model": True,
             },
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.80, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.82
+                min_cosine_similarity=0.85, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.82
             ),
-            training_params={"epochs": 8},
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.75, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.80
+                min_cosine_similarity=0.80, max_edit_distance=1, min_cosine_similarity_for_edit_distance=0.80
             )
         ),
         IterationProgram(
             stem_generator=DefaultStemGenerator(
-                min_cosine_similarity=0.75, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.80
+                min_cosine_similarity=0.80, max_edit_distance=2, min_cosine_similarity_for_edit_distance=0.82
             ),
             training_params={"epochs": 8},
         ),
     ]
 
-    corpus_name = "skv-cbow-100"
+    corpus_name = "skv-ft-30"
     corpus_folder = get_path("hebrew", corpus_name)
-    training_params = {"vector_size": 100, "epochs": 7, "window": 20}
-    default_stemming_params = {"min_cosine_similarity": 0.75, "min_cosine_similarity_for_edit_distance": 0.80}
+    training_params = {"vector_size": 30, "epochs": 2, "window": 10, "skip_gram": True, "min_count": 5}
+    default_stemming_params = {"min_cosine_similarity": 0.80, "min_cosine_similarity_for_edit_distance": 0.82}
     # trainer = Word2VecStemmingTrainer(
-    # trainer = FastTextStemmingTrainer(
-    trainer = Word2VecStemmingTrainer(
+    trainer = FastTextStemmingTrainer(
         corpus_folder=corpus_folder,
         max_iterations=5,
         completed_iterations=0,
@@ -54,6 +52,7 @@ def main():
         default_training_params=training_params,
         default_stem_generator_params=default_stemming_params,
     )
+    trainer.save_stem_dict()
 
     trainer.train()
 
