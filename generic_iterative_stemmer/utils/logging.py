@@ -84,9 +84,6 @@ class LevelRangeFilter(Filter):
         return False
 
 
-logging.setLoggerClass(ContextLogger)
-
-
 def get_logger(name: str) -> ContextLogger:
     return logging.getLogger(name)  # type: ignore
 
@@ -153,6 +150,7 @@ def configure_logging(formatter: str = None, level: str = None, detailed_json: b
             "matplotlib": {"propagate": False},
         },
     }
+    logging.setLoggerClass(ContextLogger)
     dictConfig(config)
     log.debug("Logging configured")
 

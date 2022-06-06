@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Optional, Type
 
 from gensim.models import KeyedVectors
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from ...errors import StemmingTrainerError
 from ...models import (
