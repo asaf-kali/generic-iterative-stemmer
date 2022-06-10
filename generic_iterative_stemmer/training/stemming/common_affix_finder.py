@@ -1,4 +1,5 @@
 import difflib
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List, TypeVar
@@ -6,10 +7,11 @@ from typing import Any, Dict, List, TypeVar
 import numpy as np
 from pydantic import BaseModel
 
-from ...training.stemming import StemDict
-from ...utils import Settings, get_logger
+from tests.utils.settings import Settings
 
-log = get_logger(__name__)
+from ...training.stemming import StemDict
+
+log = logging.getLogger(__name__)
 T = TypeVar("T")
 Histogram = Dict[Any, float]
 HistogramByLength = Dict[int, Histogram]

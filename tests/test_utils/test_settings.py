@@ -1,6 +1,6 @@
 import os
 
-from generic_iterative_stemmer.utils import Settings
+from tests.utils.settings import Settings
 
 
 def test_settings_reload():

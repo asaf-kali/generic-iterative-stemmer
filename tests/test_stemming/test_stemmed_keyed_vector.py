@@ -2,7 +2,6 @@ import os.path
 
 import numpy as np
 import pytest
-from test_stemming.conftest import CorpusResource
 
 from generic_iterative_stemmer.errors import StemDictFileNotFoundError
 from generic_iterative_stemmer.models import (
@@ -14,6 +13,7 @@ from generic_iterative_stemmer.training.stemming import (
     StemmingTrainer,
     Word2VecStemmingTrainer,
 )
+from tests.test_stemming.conftest import CorpusResource
 
 
 @pytest.fixture(scope="class")

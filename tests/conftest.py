@@ -1,3 +1,3 @@
-from generic_iterative_stemmer.utils import configure_logging
+from .utils.logging import configure_logging
 
 configure_logging(formatter="test")

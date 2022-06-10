@@ -1,10 +1,9 @@
+import logging
 import os
 from typing import Any, Callable
 
 from dynaconf import Dynaconf
 from dynaconf.base import LazySettings
-
-from generic_iterative_stemmer.utils import get_logger
 
 
 class classproperty:  # noqa
@@ -22,7 +21,7 @@ class Settings:
 
     @classmethod
     def reload(cls):
-        log = get_logger(__name__)
+        log = logging.getLogger(__name__)
         log.info("Loading settings")
         settings_files = ["settings.toml", "local.toml"]
         cls._settings = Dynaconf(environments=True, settings_files=settings_files, **os.environ)

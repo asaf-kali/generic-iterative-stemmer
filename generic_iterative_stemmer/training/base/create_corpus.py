@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Callable, List, Set
 
@@ -5,9 +6,7 @@ from gensim.corpora import WikiCorpus
 from gensim.corpora.wikicorpus import tokenize
 from tqdm import tqdm
 
-from generic_iterative_stemmer.utils.logging import get_logger
-
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 HEBREW_LETTER_PATTERN = re.compile(r"[\u0590-\u05FF]")
 HEBREW_WORD_PATTERN = re.compile(r"[\u0590-\u05FF\-']+")
@@ -89,7 +88,8 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, to
 
 
 if __name__ == "__main__":
-    from generic_iterative_stemmer.utils import configure_logging, get_path
+    from utils.loader import get_path
+    from utils.logging import configure_logging
 
     configure_logging()
     articles = get_path("hebrew", "wiki-he.xml.bz2")

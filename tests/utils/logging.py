@@ -1,10 +1,9 @@
 import json
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from logging import Filter, Formatter, Logger, LogRecord
 from logging.config import dictConfig
-from time import time
 
 
 class ContextLogger(Logger):
@@ -97,31 +96,31 @@ def configure_logging(formatter: str = None, level: str = None, detailed_json: b
         "disable_existing_loggers": False,
         "formatters": {
             "simple": {
-                "class": "generic_iterative_stemmer.utils.ExtraDataFormatter",
+                "class": "tests.utils.logging.ExtraDataFormatter",
                 "format": "[%(asctime)s] %(message)s [%(name)s]",
                 "datefmt": "%H:%M:%S",
             },
             "debug": {
-                "class": "generic_iterative_stemmer.utils.ExtraDataFormatter",
+                "class": "tests.utils.logging.ExtraDataFormatter",
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s @@@ "
                 "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
             "json": {
-                "()": "generic_iterative_stemmer.utils.JsonFormatter",
+                "()": "tests.utils.logging.JsonFormatter",
                 "detailed": detailed_json,
                 "pretty_json": pretty_json,
             },
             "test": {
-                "class": "generic_iterative_stemmer.utils.ExtraDataFormatter",
+                "class": "tests.utils.logging.ExtraDataFormatter",
                 "format": "[%(asctime)s.%(msecs)03d] [%(levelname)-.4s]: %(message)s "
                 "[%(threadName)s] [%(name)s:%(lineno)s]",
                 "datefmt": "%H:%M:%S",
             },
         },
         "filters": {
-            "std_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "high": logging.WARNING},
-            "err_filter": {"()": "generic_iterative_stemmer.utils.LevelRangeFilter", "low": logging.WARNING},
+            "std_filter": {"()": "tests.utils.logging.LevelRangeFilter", "high": logging.WARNING},
+            "err_filter": {"()": "tests.utils.logging.LevelRangeFilter", "low": logging.WARNING},
         },
         "handlers": {
             "console_out": {
@@ -153,23 +152,3 @@ def configure_logging(formatter: str = None, level: str = None, detailed_json: b
     logging.setLoggerClass(ContextLogger)
     dictConfig(config)
     log.debug("Logging configured")
-
-
-class MeasureTime:
-    def __init__(self):
-        self.start = self.end = 0
-
-    def __enter__(self):
-        self.start = time()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end = time()
-
-    @property
-    def delta(self) -> float:
-        return round(self.duration.total_seconds(), 3)
-
-    @property
-    def duration(self) -> timedelta:
-        return timedelta(seconds=self.end - self.start)

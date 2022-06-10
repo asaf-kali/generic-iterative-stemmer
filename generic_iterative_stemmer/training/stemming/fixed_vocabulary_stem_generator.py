@@ -1,9 +1,9 @@
+import logging
 from typing import Iterable
 
 from ...training.stemming import StemDict, StemGenerator
-from ...utils import get_logger
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class FixedVocabularyStemGenerator(StemGenerator):

@@ -1,6 +1,6 @@
 from time import sleep
 
-from generic_iterative_stemmer.utils import MeasureTime
+from generic_iterative_stemmer.helpers import MeasureTime
 
 SLEEP_TIME_SEC = 0.05
 

@@ -1,11 +1,10 @@
 import json
+import logging
 import os
 from time import sleep
 from typing import Set, Type
 
 import pytest
-from test_stemming.conftest import CorpusResource
-from utils import hook_calls
 
 from generic_iterative_stemmer.errors import StemmingTrainerError
 from generic_iterative_stemmer.models import (
@@ -29,9 +28,10 @@ from generic_iterative_stemmer.training.stemming.stemming_trainer import (
     get_corpus_path,
     get_iteration_folder,
 )
-from generic_iterative_stemmer.utils import get_logger
+from tests.test_stemming.conftest import CorpusResource
+from tests.utils.hooks import hook_calls
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def assert_skv_sanity(skv: StemmedKeyedVectors, is_fully_stemmed: bool = True):
