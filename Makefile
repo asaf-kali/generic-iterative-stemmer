@@ -1,4 +1,4 @@
-.PHONY: tests
+.PHONY: tests build
 
 LINE_LENGTH=120
 
@@ -43,13 +43,13 @@ test:
 # Pypi
 
 build:
-	gio trash -f dist/
-	gio trash -f generic_iterative_stemmer.egg-info/
-	python setup.py sdist
+	$(DEL_COMMAND) -f dist/
+	python -m build
 
-upload:
-	make build
+upload-only:
 	twine upload dist/*
+
+upload: build upload-only
 
 upload-test:
 	make build
