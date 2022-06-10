@@ -4,14 +4,14 @@ import random
 import shutil
 
 import pytest
-from utils.data import (
+
+from generic_iterative_stemmer.training.stemming import StemDict
+from tests.utils.data import (
     CORPUS_SMALL,
     TEST_RUNTIME_FOLDER,
     get_large_stem_dict_path,
     get_test_src_corpus_path,
 )
-
-from generic_iterative_stemmer.training.stemming import StemDict
 
 
 class CorpusResource:

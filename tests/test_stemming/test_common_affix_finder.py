@@ -1,3 +1,5 @@
+import logging
+
 from generic_iterative_stemmer.training.stemming import StemDict
 from generic_iterative_stemmer.training.stemming.common_affix_finder import (
     Affixes,
@@ -6,9 +8,8 @@ from generic_iterative_stemmer.training.stemming.common_affix_finder import (
     get_removals,
     identify_affixes,
 )
-from generic_iterative_stemmer.utils import get_logger
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def test_find_common_affixes(small_stem_dict: StemDict):

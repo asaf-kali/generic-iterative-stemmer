@@ -1,5 +1,6 @@
 import copy
 import json
+import logging
 import os.path
 import re
 import shutil
@@ -11,24 +12,18 @@ from gensim.models import KeyedVectors
 from pydantic import BaseModel
 
 from ...errors import StemmingTrainerError
+from ...helpers import MeasureTime, remove_file_exit_ok, sort_dict_by_values
 from ...models import (
     StemmedKeyedVectors,
     get_model_path,
     get_stem_dict_path_from_model_path,
     save_stem_dict,
 )
-from ...utils import (
-    MeasureTime,
-    get_logger,
-    loader,
-    remove_file_exit_ok,
-    sort_dict_by_values,
-)
 from . import StemDict, StemGenerator, reduce_stem_dict
 from .corpus_stemmer import StemCorpusResult, stem_corpus
 from .default_stem_generator import DefaultStemGenerator
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 ITER_FOLDER_PATTERN = re.compile(r"iter-\d+")
 
@@ -128,7 +123,7 @@ class StemmingIterationTrainer:
     def _try_load_trained_model(self) -> Optional[KeyedVectors]:
         model_path = self.iteration_trained_model_path
         if os.path.exists(model_path):
-            return loader.load_kv(model_path)
+            return KeyedVectors.load(model_path)  # type: ignore
         return None
 
     def run_stemming_iteration(self) -> StemmingIterationStats:

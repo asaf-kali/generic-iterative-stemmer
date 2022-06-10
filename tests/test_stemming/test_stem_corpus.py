@@ -1,11 +1,10 @@
-from test_stemming.conftest import CorpusResource
-from utils.data import CORPUS_TINY, get_runtime_file_path
-
 from generic_iterative_stemmer.training.stemming.corpus_stemmer import (
     CorpusStemmer,
     StemCorpusResult,
     stem_corpus,
 )
+from tests.test_stemming.conftest import CorpusResource
+from tests.utils.data import CORPUS_TINY, get_runtime_file_path
 
 
 def test_stem_sentence():

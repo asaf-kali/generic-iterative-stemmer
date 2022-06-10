@@ -11,7 +11,8 @@ class FastTextStemmingTrainer(StemmingTrainer):
 
 
 if __name__ == "__main__":
-    from generic_iterative_stemmer.utils import configure_logging, get_path
+    from utils.loader import get_path
+    from utils.logging import configure_logging
 
     configure_logging()
 

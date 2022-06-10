@@ -1,3 +1,6 @@
+from utils.loader import get_path
+from utils.logging import configure_logging
+
 from generic_iterative_stemmer.training.stemming import (  # noqa
     FastTextStemmingTrainer,
     Word2VecStemmingTrainer,
@@ -8,7 +11,6 @@ from generic_iterative_stemmer.training.stemming.default_stem_generator import (
 from generic_iterative_stemmer.training.stemming.stemming_trainer import (
     IterationProgram,
 )
-from generic_iterative_stemmer.utils import configure_logging, get_path
 
 
 def main():

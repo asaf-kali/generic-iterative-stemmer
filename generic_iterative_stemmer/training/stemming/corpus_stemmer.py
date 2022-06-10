@@ -1,12 +1,12 @@
+import logging
 from typing import Set
 
 from pydantic import BaseModel
 from tqdm import tqdm
 
-from ...utils import get_logger
 from ..stemming import StemDict
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class StemSentenceResult(BaseModel):

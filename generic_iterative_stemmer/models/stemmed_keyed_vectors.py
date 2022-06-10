@@ -1,12 +1,12 @@
 import json
+import logging
 import os
 
 from gensim.models import KeyedVectors
 
 from ..errors import StemDictFileNotFoundError
-from ..utils import get_logger
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def get_model_path(base_folder: str) -> str:
