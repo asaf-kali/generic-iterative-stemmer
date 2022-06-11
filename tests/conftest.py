@@ -1,3 +1,3 @@
 from .utils.logging import configure_logging
 
-configure_logging(formatter="test")
+configure_logging(std_formatter="simple")
