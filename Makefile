@@ -1,3 +1,4 @@
+DEL_COMMAND=gio trash
 .PHONY: tests build
 
 LINE_LENGTH=120
@@ -43,7 +44,7 @@ test:
 # Pypi
 
 build:
-	$(DEL_COMMAND) -f dist/
+	$(DEL_COMMAND) -f dist/*
 	python -m build
 
 upload-only:
