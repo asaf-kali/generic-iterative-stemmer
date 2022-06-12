@@ -10,9 +10,10 @@ from typing import List, Optional, Type
 
 from gensim.models import KeyedVectors
 from pydantic import BaseModel
+from the_spymaster_util.measure_time import MeasureTime
 
 from ...errors import StemmingTrainerError
-from ...helpers import MeasureTime, remove_file_exit_ok, sort_dict_by_values
+from ...helpers import remove_file_exit_ok, sort_dict_by_values
 from ...models import (
     StemmedKeyedVectors,
     get_model_path,
