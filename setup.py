@@ -1,6 +1,6 @@
 from setuptools import setup
 
-BASE_DEPS = ["the-spymaster-util~=1.3", "gensim~=4.1", "pydantic~=1.9"]
+BASE_DEPS = ["the-spymaster-util~=1.4", "gensim~=4.1", "pydantic~=1.9"]
 TRAINING_DEPS = [
     "numpy~=1.21",
     "pandas~=1.3",
@@ -13,7 +13,7 @@ ALL_DEPS = BASE_DEPS + TRAINING_DEPS
 
 setup(
     name="generic-iterative-stemmer",
-    version="1.0.4",
+    version="1.0.5",
     description="A generic language stemming utility, dedicated for gensim word-embedding.",
     author="Asaf Kali",
     author_email="asaf.kali@mail.huji.ac.il",
