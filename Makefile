@@ -1,26 +1,33 @@
-DEL_COMMAND=gio trash
+PYTHON_TEST_COMMAND=pytest -s
+ifeq ($(OS),Windows_NT)
+	OPEN_FILE_COMMAND=start
+	DEL_COMMAND=del
+else
+	OPEN_FILE_COMMAND=xdg-open
+	DEL_COMMAND=gio trash
+endif
+SYNC=--sync
 .PHONY: tests build
 
 LINE_LENGTH=120
 
 # Install
 
-install-run:
-	pip install --upgrade pip
+upgrade-pip:
+	python -m pip install --upgrade pip
+
+install-run: upgrade-pip
 	pip install -r requirements.txt
 
-install-test:
-	pip install --upgrade pip
+install-test: upgrade-pip
 	pip install -r requirements-dev.txt
 	@make install-run --no-print-directory
 
 install-dev:
 	@make install-test --no-print-directory
 	pre-commit install
-	@make test --no-print-directory
 
-
-install: install-dev
+install: install-dev test
 
 # Lint
 
@@ -40,7 +47,7 @@ lint: lint-only
 # Test
 
 test:
-	python -m pytest -s
+	python -m $(PYTHON_TEST_COMMAND)
 
 # Pypi
 
