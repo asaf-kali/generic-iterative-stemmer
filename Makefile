@@ -63,3 +63,8 @@ upload: build upload-only
 upload-test:
 	make build
 	twine upload --repository testpypi dist/*
+
+wip:
+	git add .
+	git commit -m "Auto commit."
+	git push
