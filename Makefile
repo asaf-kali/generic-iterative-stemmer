@@ -14,7 +14,7 @@ LINE_LENGTH=120
 # Install
 
 upgrade-pip:
-	python -m pip install --upgrade pip
+	pip install --upgrade pip
 
 install-run: upgrade-pip
 	pip install -r requirements.txt

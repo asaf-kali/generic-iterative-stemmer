@@ -19,7 +19,7 @@ jobs:
           python-version: 3.9
       - name: CI setup
         run: |
-          pip install pybind11
+          pip install pybind11 wheel
       - name: Install dependencies
         run: |
           make install-test
