@@ -1,6 +1,6 @@
 from setuptools import setup
 
-BASE_DEPS = ["the-spymaster-util~=1.4", "gensim~=4.1", "pydantic~=1.9"]
+BASE_DEPS = ["the-spymaster-util~=3.0", "gensim~=4.1", "pydantic~=1.9"]
 TRAINING_DEPS = [
     "numpy~=1.21",
     "pandas~=1.3",

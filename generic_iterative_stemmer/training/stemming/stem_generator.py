@@ -2,7 +2,7 @@ import logging
 from typing import Dict, Iterable, Mapping
 
 from gensim.models import KeyedVectors
-from the_spymaster_util import AsyncTaskManager
+from the_spymaster_util.async_task_manager import AsyncTaskManager
 from tqdm import tqdm
 
 from generic_iterative_stemmer.helpers import sort_dict_by_values

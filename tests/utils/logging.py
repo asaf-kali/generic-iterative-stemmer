@@ -1,7 +1,7 @@
 import logging
 from logging.config import dictConfig
 
-from the_spymaster_util import get_dict_config
+from the_spymaster_util.logger import get_dict_config
 
 
 def configure_logging(std_formatter: str = None):
