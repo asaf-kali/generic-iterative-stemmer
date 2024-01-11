@@ -50,6 +50,11 @@ class StemmedKeyedVectors:
     def __getitem__(self, item):
         return self.kv.__getitem__(item)
 
+    def __contains__(self, item) -> bool:
+        if item in self.stem_dict:
+            return True
+        return self.kv.__contains__(item)
+
     def get_vector(self, key, norm=False):
         stem = self.stem_dict.get(key, key)
         return self._inner_get_vector(stem, norm=norm)
