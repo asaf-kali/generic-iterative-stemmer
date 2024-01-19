@@ -13,7 +13,7 @@ ALL_DEPS = BASE_DEPS + TRAINING_DEPS
 
 setup(
     name="generic-iterative-stemmer",
-    version="1.0.7",
+    version="1.1.0",
     description="A generic language stemming utility, dedicated for gensim word-embedding.",
     author="Asaf Kali",
     author_email="asaf.kali@mail.huji.ac.il",

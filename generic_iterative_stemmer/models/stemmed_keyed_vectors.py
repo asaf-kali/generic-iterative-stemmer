@@ -55,9 +55,17 @@ class StemmedKeyedVectors:
             return True
         return self.kv.__contains__(item)
 
+    def stem(self, word: str) -> str:
+        return self.stem_dict.get(word, word)
+
     def get_vector(self, key, norm=False):
-        stem = self.stem_dict.get(key, key)
+        stem = self.stem(key)
         return self._inner_get_vector(stem, norm=norm)
+
+    def most_similar(self, *args, **kwargs):
+        similarities = self.kv.most_similar(*args, **kwargs)
+        stemmed_similarities = [(self.stem(word), score) for word, score in similarities]
+        return stemmed_similarities
 
     @classmethod
     def load(cls, file_name: str, mmap=None):
