@@ -53,4 +53,6 @@ def small_stem_dict(large_stem_dict: StemDict) -> StemDict:
 def _sub_sample_dict(d: dict, ratio: float = 0.1, seed: int = 1) -> dict:
     random.seed(seed)
     new_size = int(len(d) * ratio)
-    return dict(item for item in random.sample(d.items(), new_size))
+    keys = sorted(d.keys())
+    sampled_keys = random.sample(population=keys, k=new_size)
+    return {k: d[k] for k in sampled_keys}
