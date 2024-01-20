@@ -7,8 +7,7 @@ else
 	DEL_COMMAND=gio trash
 endif
 SYNC=--sync
-.PHONY: tests build
-
+.PHONY: build
 LINE_LENGTH=120
 
 # Install
@@ -16,55 +15,110 @@ LINE_LENGTH=120
 upgrade-pip:
 	pip install --upgrade pip
 
-install-run: upgrade-pip
-	pip install -r requirements.txt
+install-ci: upgrade-pip
+	pip install -r requirements-ci.txt
+	poetry config virtualenvs.create false
 
-install-test: upgrade-pip
-	pip install -r requirements-dev.txt
-	@make install-run --no-print-directory
+install-run:
+	poetry install --only main
 
-install-dev:
-	@make install-test --no-print-directory
+install-test:
+	poetry install --only main --only test --all-extras
+
+install-lint:
+	poetry install --only lint
+
+install-dev: upgrade-pip
+	poetry install --all-extras $(SYNC)
 	pre-commit install
 
-install: install-dev test
+install: lock-check install-dev lint cover
 
-# Lint
+# Poetry
 
-lint-only:
-	black . -l $(LINE_LENGTH)
-	isort . --profile black --skip __init__.py
+lock:
+	poetry lock --no-update
 
-lint-check:
-	black . -l $(LINE_LENGTH) --check
-	isort . --profile black --skip __init__.py --check
-	mypy . --ignore-missing-imports
-	flake8 . --max-line-length=$(LINE_LENGTH)
-
-lint: lint-only
-	pre-commit run --all-files
+lock-check:
+	poetry check --lock
 
 # Test
 
 test:
 	python -m $(PYTHON_TEST_COMMAND)
 
-# Pypi
+cover-base:
+	coverage run -m $(PYTHON_TEST_COMMAND)
+
+cover-xml: cover-base
+	coverage xml
+
+cover-html: cover-base
+	coverage html
+
+cover: cover-html
+	$(OPEN_FILE_COMMAND) htmlcov/index.html &
+	$(DEL_COMMAND) .coverage*
+
+# Packaging
 
 build:
 	$(DEL_COMMAND) -f dist/*
-	python -m build
-
-upload-only:
-	twine upload dist/*
-
-upload: build upload-only
+	poetry build
 
 upload-test:
-	make build
 	twine upload --repository testpypi dist/*
 
-wip:
+upload:
+	twine upload dist/*
+
+build-and-upload: build upload
+
+# Semantic release
+
+semrel:
+	@echo "Releasing version..."
+	semantic-release version
+
+semrel-dev:
+	@echo "Releasing dev version..."
+	semantic-release version --no-commit --no-push
+	# Replace "-dev.1" with epoch time in version
+	sed -i 's/-dev.1/.dev.$(shell date +%s)/g' pyproject.toml
+	make build
+
+# Lint
+
+format:
+	ruff . --fix
+	black .
+	isort .
+
+check-ruff:
+	ruff .
+
+check-black:
+	black --check .
+
+check-isort:
+	isort --check .
+
+check-mypy:
+	mypy .
+
+check-pylint:
+	pylint generic_iterative_stemmer/ --fail-under=8.5
+
+lint: format
+	pre-commit run --all-files
+	@make check-pylint --no-print-directory
+
+# Quick and dirty
+
+wip: format
 	git add .
-	git commit -m "Auto commit."
-	git push
+	git commit -m "Auto commit." --no-verify
+
+amend: format
+	git add .
+	git commit --amend --no-edit --no-verify

@@ -2,6 +2,7 @@ data/
 .idea/
 local.toml
 language_data
+junit.xml
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,linux,macos,windows,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,linux,macos,windows,jupyternotebooks
