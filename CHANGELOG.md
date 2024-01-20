@@ -2,7 +2,18 @@
 
 
 
+## v1.1.4 (2024-01-20)
+
+### 🌴
+
+* 🌴 Tests: remove flaky assertion, mute debug logs. ([`67e0e34`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/67e0e3478c0a84be3ffb835a15792f79cf849d99))
+
+
 ## v1.1.3 (2024-01-20)
+
+### Other
+
+* 🤖 Release [1.1.3] [skip ci] ([`cca6fa5`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/cca6fa53d8d799b60b64c4936d467172ae0f3da7))
 
 ### 📌
 
