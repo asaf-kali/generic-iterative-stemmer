@@ -1,10 +1,11 @@
 import logging
 from logging.config import dictConfig
+from typing import Optional
 
 from the_spymaster_util.logger import get_dict_config
 
 
-def configure_logging(std_formatter: str = None):
+def configure_logging(std_formatter: Optional[str] = None, root_log_level: str = "INFO"):
     handlers = {
         "training_file": {
             "class": "logging.FileHandler",
@@ -19,6 +20,7 @@ def configure_logging(std_formatter: str = None):
     }
     dict_config = get_dict_config(
         std_formatter=std_formatter,
+        root_log_level=root_log_level,
         extra_handlers=handlers,
         extra_loggers=loggers,
     )
