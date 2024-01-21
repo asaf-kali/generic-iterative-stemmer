@@ -235,7 +235,7 @@ class StemmingTrainer:
         self.min_change_count = min_change_count
         self.training_program = training_program or []
         self.default_training_params = default_training_params or {}
-        self.default_stem_generator_class = default_stem_generator_class  # TODO: This can't be serialized and loaded.
+        self.default_stem_generator_class = default_stem_generator_class
         self.default_stem_generator_params = default_stem_generator_params or {}
 
     @classmethod
@@ -249,7 +249,6 @@ class StemmingTrainer:
 
     @property
     def state(self) -> dict:
-        # TODO: Replace with serializable model.
         return {
             "corpus_folder": self.corpus_folder,
             "completed_iterations": self.completed_iterations,

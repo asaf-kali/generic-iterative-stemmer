@@ -290,7 +290,7 @@ css = ["tinycss2 (>=1.1.0,<1.3)"]
 name = "boto3"
 version = "1.34.11"
 description = "The AWS SDK for Python"
-optional = false
+optional = true
 python-versions = ">= 3.8"
 files = [
     {file = "boto3-1.34.11-py3-none-any.whl", hash = "sha256:1af021e0c6e3040e8de66d403e963566476235bb70f9a8e3f6784813ac2d8026"},
@@ -309,7 +309,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 name = "botocore"
 version = "1.34.12"
 description = "Low-level, data-driven core of boto 3."
-optional = false
+optional = true
 python-versions = ">= 3.8"
 files = [
     {file = "botocore-1.34.12-py3-none-any.whl", hash = "sha256:346b0788f3bf4c68928db909170e4c7300119a22f9a2176bf5f764d3542997e8"},
@@ -911,7 +911,7 @@ files = [
 name = "dynaconf"
 version = "3.2.4"
 description = "The dynamic configurator for your Python Project"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "dynaconf-3.2.4-py2.py3-none-any.whl", hash = "sha256:858f9806fab2409c4f5442614c2605d4c4071d5e5153b0e7f24a225f27465aed"},
@@ -1601,7 +1601,7 @@ i18n = ["Babel (>=2.7)"]
 name = "jmespath"
 version = "1.0.1"
 description = "JSON Matching Expressions"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
@@ -3707,7 +3707,7 @@ files = [
 name = "s3transfer"
 version = "0.10.0"
 description = "An Amazon S3 Transfer Manager"
-optional = false
+optional = true
 python-versions = ">= 3.8"
 files = [
     {file = "s3transfer-0.10.0-py3-none-any.whl", hash = "sha256:3cdb40f5cfa6966e812209d0994f2a4709b561c88e90cf00c2696d2df4e56b2e"},
@@ -3925,7 +3925,7 @@ typing = ["mypy (>=1.6,<2.0)", "traitlets (>=5.11.1)"]
 name = "the-spymaster-util"
 version = "3.1.0"
 description = "Common utilities and infra for The Spymaster game."
-optional = false
+optional = true
 python-versions = ">=3.8,<4.0"
 files = [
     {file = "the_spymaster_util-3.1.0-py3-none-any.whl", hash = "sha256:12cae2c0e4a45743da8d03350ba39532bb04d1047ea9258ae688bafe2b6ea3bb"},
@@ -4093,7 +4093,7 @@ files = [
 name = "ulid-py"
 version = "1.1.0"
 description = "Universally Unique Lexicographically Sortable Identifier"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "ulid-py-1.1.0.tar.gz", hash = "sha256:dc6884be91558df077c3011b9fb0c87d1097cb8fc6534b11f310161afd5738f0"},
@@ -4230,9 +4230,9 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-training = ["editdistance", "fasttext-wheel", "matplotlib", "numpy", "pandas", "tqdm"]
+training = ["editdistance", "fasttext-wheel", "matplotlib", "numpy", "pandas", "the-spymaster-util", "tqdm"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "e8d02a47e392a66abc7bb6f34c59cffcc8fb70309f92157fd6a6d6d6cdd3f03e"
+content-hash = "f486c03d818b6b4b932c934f2b8cbf10c8dec64a29f974b4b0b23cf530c95cd8"

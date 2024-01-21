@@ -38,7 +38,6 @@ class StemmedKeyedVectors:
     def __init__(self, kv: KeyedVectors, stem_dict: dict):
         self.kv = kv
         self.stem_dict = stem_dict
-        # TODO: Validate stem_dict is reduced?
         # Override get_vector
         self._inner_get_vector = self.kv.get_vector
         self.kv.get_vector = self.get_vector
