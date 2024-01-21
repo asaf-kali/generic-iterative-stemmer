@@ -287,47 +287,6 @@ webencodings = "*"
 css = ["tinycss2 (>=1.1.0,<1.3)"]
 
 [[package]]
-name = "boto3"
-version = "1.34.11"
-description = "The AWS SDK for Python"
-optional = true
-python-versions = ">= 3.8"
-files = [
-    {file = "boto3-1.34.11-py3-none-any.whl", hash = "sha256:1af021e0c6e3040e8de66d403e963566476235bb70f9a8e3f6784813ac2d8026"},
-    {file = "boto3-1.34.11.tar.gz", hash = "sha256:31c130a40ec0631059b77d7e87f67ad03ff1685a5b37638ac0c4687026a3259d"},
-]
-
-[package.dependencies]
-botocore = ">=1.34.11,<1.35.0"
-jmespath = ">=0.7.1,<2.0.0"
-s3transfer = ">=0.10.0,<0.11.0"
-
-[package.extras]
-crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
-
-[[package]]
-name = "botocore"
-version = "1.34.12"
-description = "Low-level, data-driven core of boto 3."
-optional = true
-python-versions = ">= 3.8"
-files = [
-    {file = "botocore-1.34.12-py3-none-any.whl", hash = "sha256:346b0788f3bf4c68928db909170e4c7300119a22f9a2176bf5f764d3542997e8"},
-    {file = "botocore-1.34.12.tar.gz", hash = "sha256:53dfc19d63f2b70821e9804b7ecfc5e50fc84d9bd6818359b27db629ef43ec59"},
-]
-
-[package.dependencies]
-jmespath = ">=0.7.1,<2.0.0"
-python-dateutil = ">=2.1,<3.0.0"
-urllib3 = [
-    {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
-    {version = ">=1.25.4,<2.1", markers = "python_version >= \"3.10\""},
-]
-
-[package.extras]
-crt = ["awscrt (==0.19.19)"]
-
-[[package]]
 name = "certifi"
 version = "2023.11.17"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -911,7 +870,7 @@ files = [
 name = "dynaconf"
 version = "3.2.4"
 description = "The dynamic configurator for your Python Project"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "dynaconf-3.2.4-py2.py3-none-any.whl", hash = "sha256:858f9806fab2409c4f5442614c2605d4c4071d5e5153b0e7f24a225f27465aed"},
@@ -1596,17 +1555,6 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
-
-[[package]]
-name = "jmespath"
-version = "1.0.1"
-description = "JSON Matching Expressions"
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
-    {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
-]
 
 [[package]]
 name = "json5"
@@ -3704,23 +3652,6 @@ files = [
 ]
 
 [[package]]
-name = "s3transfer"
-version = "0.10.0"
-description = "An Amazon S3 Transfer Manager"
-optional = true
-python-versions = ">= 3.8"
-files = [
-    {file = "s3transfer-0.10.0-py3-none-any.whl", hash = "sha256:3cdb40f5cfa6966e812209d0994f2a4709b561c88e90cf00c2696d2df4e56b2e"},
-    {file = "s3transfer-0.10.0.tar.gz", hash = "sha256:d0c8bbf672d5eebbe4e57945e23b972d963f07d82f661cabf678a5c88831595b"},
-]
-
-[package.dependencies]
-botocore = ">=1.33.2,<2.0a.0"
-
-[package.extras]
-crt = ["botocore[crt] (>=1.33.2,<2.0a.0)"]
-
-[[package]]
 name = "scipy"
 version = "1.9.3"
 description = "Fundamental algorithms for scientific computing in Python"
@@ -3923,21 +3854,23 @@ typing = ["mypy (>=1.6,<2.0)", "traitlets (>=5.11.1)"]
 
 [[package]]
 name = "the-spymaster-util"
-version = "3.1.0"
+version = "3.2.0"
 description = "Common utilities and infra for The Spymaster game."
 optional = true
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "the_spymaster_util-3.1.0-py3-none-any.whl", hash = "sha256:12cae2c0e4a45743da8d03350ba39532bb04d1047ea9258ae688bafe2b6ea3bb"},
-    {file = "the_spymaster_util-3.1.0.tar.gz", hash = "sha256:0326329b8fbb4d1ba6dec1eb5856c8a7d7ac39930888f6d88411f701c800fab4"},
+    {file = "the_spymaster_util-3.2.0-py3-none-any.whl", hash = "sha256:9da9fd6610b2a3360eaf70876dbdc70b81fda9444f149a0dda05343f7d3ee75c"},
+    {file = "the_spymaster_util-3.2.0.tar.gz", hash = "sha256:7ddfb0568cd064f87cd8ecc5bb9352de589d30602d824f3cd9c76d2c03ecd644"},
 ]
 
 [package.dependencies]
-boto3 = ">=1.24.6,<2.0.0"
-dynaconf = ">=3.1,<4.0"
-pydantic = ">=1.9,<2.0"
-requests = ">=2.28,<3.0"
-ulid-py = ">=1.1,<2.0"
+ulid-py = {version = ">=1.1,<2.0", optional = true, markers = "extra == \"logging\" or extra == \"all\""}
+
+[package.extras]
+all = ["boto3 (>=1.24.6,<2.0.0)", "dynaconf (>=3.1,<4.0)", "requests (>=2.28,<3.0)", "ulid-py (>=1.1,<2.0)"]
+clients = ["requests (>=2.28,<3.0)"]
+config = ["boto3 (>=1.24.6,<2.0.0)", "dynaconf (>=3.1,<4.0)"]
+logging = ["ulid-py (>=1.1,<2.0)"]
 
 [[package]]
 name = "tinycss2"
@@ -4235,4 +4168,4 @@ training = ["editdistance", "fasttext-wheel", "matplotlib", "numpy", "pandas", "
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "f486c03d818b6b4b932c934f2b8cbf10c8dec64a29f974b4b0b23cf530c95cd8"
+content-hash = "a9fe246ccc53099b8df5b228aa19f4be3f19656e17646ae3ee12582b33ea0331"
