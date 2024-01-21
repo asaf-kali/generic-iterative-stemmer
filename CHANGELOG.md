@@ -2,7 +2,18 @@
 
 
 
+## v1.1.5 (2024-01-21)
+
+### 🌴
+
+* 🌴 Reduce dependencies. ([`fa4a446`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/fa4a4467134c93e0c701b6fe7063b4be5ba92898))
+
+
 ## v1.1.4 (2024-01-20)
+
+### Other
+
+* 🤖 Release [1.1.4] [skip ci] ([`5234389`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/52343897ee35dc92e1ef92a5a721621b66e50ae6))
 
 ### 🌴
 
