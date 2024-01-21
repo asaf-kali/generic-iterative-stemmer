@@ -29,24 +29,6 @@ log = logging.getLogger(__name__)
 ITER_FOLDER_PATTERN = re.compile(r"iter-\d+")
 
 
-def get_iteration_folder(base_folder: str, iteration_number: int) -> str:
-    folder = os.path.join(base_folder, f"iter-{iteration_number}")
-    Path(folder).mkdir(parents=True, exist_ok=True)
-    return folder
-
-
-def get_corpus_path(base_folder: str) -> str:
-    return os.path.join(base_folder, "corpus.txt")
-
-
-def get_stats_path(base_folder: str) -> str:
-    return os.path.join(base_folder, "stats.json")
-
-
-def get_stemming_trainer_state_path(base_folder: str) -> str:
-    return os.path.join(base_folder, "stemming-trainer-state.json")
-
-
 class StemmingIterationStats(BaseModel):
     iteration_number: int
     initial_vocab_size: Optional[int] = None
@@ -64,7 +46,7 @@ class StemmingIterationStats(BaseModel):
 @dataclass
 class IterationProgram:
     stem_generator: Optional[StemGenerator] = None
-    training_params: Optional[dict] = field(default_factory=dict)
+    override_training_params: Optional[dict] = field(default_factory=dict)
     iteration_kwargs: Optional[dict] = field(default_factory=dict)
 
 
@@ -229,6 +211,8 @@ class StemmingTrainer:
         default_stem_generator_params: Optional[dict] = None,
     ):
         self.corpus_folder = corpus_folder
+        if not os.path.exists(self.corpus_folder):
+            raise StemmingTrainerError(f"Corpus folder {self.corpus_folder} does not exist.")
         self.completed_iterations = completed_iterations
         self.max_iterations = max_iterations
         self.is_fully_stemmed = is_fully_stemmed
@@ -325,7 +309,7 @@ class StemmingTrainer:
     def get_training_params(self, iteration_program: Optional[IterationProgram]) -> dict:
         training_params = copy.deepcopy(self.default_training_params)
         if iteration_program:
-            iteration_training_params = iteration_program.training_params or {}
+            iteration_training_params = iteration_program.override_training_params or {}
             training_params.update(iteration_training_params)
         return training_params
 
@@ -369,3 +353,21 @@ class StemmingTrainer:
         if not os.path.exists(stem_dict_path):
             self.save_stem_dict()
         return StemmedKeyedVectors.load(file_name=model_path)
+
+
+def get_iteration_folder(base_folder: str, iteration_number: int) -> str:
+    folder = os.path.join(base_folder, f"iter-{iteration_number}")
+    Path(folder).mkdir(parents=True, exist_ok=True)
+    return folder
+
+
+def get_corpus_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "corpus.txt")
+
+
+def get_stats_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "stats.json")
+
+
+def get_stemming_trainer_state_path(base_folder: str) -> str:
+    return os.path.join(base_folder, "stemming-trainer-state.json")

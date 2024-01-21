@@ -8,15 +8,3 @@ class FastTextStemmingTrainer(StemmingTrainer):
     def train_model_on_corpus(self, corpus_file_path: str, **kwargs) -> KeyedVectors:
         model = fast_text.train(corpus_path=corpus_file_path, **kwargs)
         return model.wv
-
-
-if __name__ == "__main__":
-    from utils.loader import get_path
-    from utils.logging import configure_logging
-
-    configure_logging()
-
-    corpus_name = "wiki-he-fasttext"
-    corpus_folder = get_path(corpus_name)
-    trainer = FastTextStemmingTrainer(corpus_folder=corpus_folder, max_iterations=5, completed_iterations=0)
-    trainer.train()
