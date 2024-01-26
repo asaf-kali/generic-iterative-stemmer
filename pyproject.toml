@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "generic-iterative-stemmer"
-version = "1.1.6"
+version = "1.1.7"
 description = "A generic language stemming utility, dedicated for gensim word-embedding."
 authors = ["Asaf Kali <asaf.kali@mail.huji.ac.il>"]
 readme = "README.md"

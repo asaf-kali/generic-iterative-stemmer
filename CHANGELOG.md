@@ -2,7 +2,22 @@
 
 
 
+## v1.1.7 (2024-01-26)
+
+### Other
+
+* 🔨 Refactoring. ([`0883a83`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/0883a83097f0885a76a08cc37057691c9a48dd99))
+
+### 🚑
+
+* 🚑️ Small fixes. ([`c4c0484`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/c4c04847682c93201a65ccc214c8ead334e543cc))
+
+
 ## v1.1.6 (2024-01-21)
+
+### Other
+
+* 🤖 Release [1.1.6] [skip ci] ([`83839d6`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/83839d6557e01e2e9b18518f36706515659f2a53))
 
 ### 🌴
 
