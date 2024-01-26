@@ -24,7 +24,7 @@ class CorpusResource:
         self.corpus_name = corpus_name
         self.src_corpus_path = get_test_src_corpus_path(corpus_name)
         self.test_runtime_corpus_folder = test_runtime_corpus_folder
-        self.test_runtime_corpus_path = os.path.join(self.test_runtime_corpus_folder, "iter-1", "corpus.txt")
+        self.test_runtime_corpus_path = os.path.join(self.test_runtime_corpus_folder, "iter-01", "corpus.txt")
         self.reset_corpus_folder()
 
     def reset_corpus_folder(self):

@@ -65,11 +65,11 @@ class TestStemmingTrainersIntegration:
         loaded_trainer = trainer_class.load_from_state_file(corpus_resource.test_runtime_corpus_folder)
         assert loaded_trainer.completed_iterations == 1
         assert loaded_trainer.default_stem_generator_params == STEM_GENERATOR_PARAMS
-        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2"]
+        assert loaded_trainer.iteration_folders_names == ["iter-01", "iter-02"]
 
         loaded_trainer.run_iteration()
         assert loaded_trainer.completed_iterations == 2
-        assert loaded_trainer.iteration_folders_names == ["iter-1", "iter-2", "iter-3"]
+        assert loaded_trainer.iteration_folders_names == ["iter-01", "iter-02", "iter-03"]
 
     def test_stemmed_words_do_not_appear_in_more_then_one_iteration(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]
@@ -150,10 +150,10 @@ class TestStemmingTrainersIntegration:
             _ = trainer.last_completed_iteration_folder
 
         trainer.run_iteration()
-        assert trainer.last_completed_iteration_folder.endswith("iter-1")
+        assert trainer.last_completed_iteration_folder.endswith("iter-01")
 
         trainer.run_iteration()
-        assert trainer.last_completed_iteration_folder.endswith("iter-2")
+        assert trainer.last_completed_iteration_folder.endswith("iter-02")
 
     def test_fixed_vocabulary_stem_generator(
         self, corpus_resource: CorpusResource, trainer_class: Type[StemmingTrainer]

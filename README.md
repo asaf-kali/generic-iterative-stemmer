@@ -29,23 +29,51 @@ Based on https://github.com/liorshk/wordembedding-hebrew.
 
 ## Usage
 
-This section shows the basic flow this repository was designed to perform. It
-supports more complicated flows as well.
+The general flow is as follows:
 
-The output of the training process is a `StemmedKeyedVectors` object (in the
-form of a `.kv` file), which inherits the standard `gensim.models.KeyedVectors`.
+1. Get a text corpus (for example, from Wikipedia).
+2. Create a training program.
+3. Run a `StemmingTrainer`.
 
-1. Under `./data` folder, create a directory for your corpus (for
-   example, `wiki-he`).
+The output of the training process is a `generic_iterative_stemmer.models.StemmedKeyedVectors` object
+(in the form of a `.kv` file). It has the same interface as the standard `gensim.models.KeyedVectors`,
+so the 2 can be used interchangeably.
+
+### 0. (Optional) Set up a language data cache
+
+`generic_iterative_stemmer` uses a language data cache to store its output and intermediate results. \
+The language data directory is useful if you want to train multiple models on the same corpus, or if you want to
+train a model on a corpus that you've already trained on in the past, with different parameters.
+
+To set up the language data cache, run ```mkdir -p ~/.cache/language_data```.
+
+**Tip**: soft-link the language data cache to your project's root directory,
+e.g. `ln -s ~/.cache/language_data language_data`.
+
+### 1. Get a text corpus
+
+If you don't a specific corpus in mind, you can use Wikipedia. Here's how:
+
+1. Under `~/.cache/language_data` folder, create a directory for your corpus (for example, `wiki-he`).
 2. Download Hebrew (or any other language) dataset from Wikipedia:
-    1. Go to [wikimedia dumps](https://dumps.wikimedia.org/hewiki/latest/).
-    2. Download `hewiki-latest-pages-articles.xml.bz2`, and save it
-       under `./data/wiki-he`.
-3. Create your initial text corpus:
-   TODO: create a notebook for that.
-4. Train the model:
-   TODO: create a notebook for that.
-5. Play with your trained model using `playground.ipynb`.
+    1. Go to [wikimedia dumps](https://dumps.wikimedia.org/hewiki/latest/) (in the URL, replace `he` with
+       your [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)).
+    2. Download the matching `wiki-latest-pages-articles.xml.bz2` file, and place it in your corpus directory.
+3. Create initial text corpus: run the script inside `notebooks/create_corpus.py` (change parameters as needed). \
+   This will create a `corpus.txt` file in your corpus directory. It takes roughly 15 minutes to run (depending on the
+   corpus size and your computer).
+
+### 2. Create a training program
+
+TODO
+
+### 3. Run a `StemmingTrainer`
+
+TODO
+
+### 4. Play with your trained model
+
+Play with your trained model using `playground.ipynb`.
 
 ## Generic iterative stemming
 

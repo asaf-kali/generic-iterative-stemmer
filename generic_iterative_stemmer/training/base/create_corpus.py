@@ -21,6 +21,8 @@ SUFFIX_LETTER_TO_NON_SUFFIX_LETTER = {
 }
 HEBREW_SUFFIX_LETTERS = tuple(SUFFIX_LETTER_TO_NON_SUFFIX_LETTER.keys())
 
+TokenizerFunc = Callable[[str, int, int, bool], List[str]]
+
 
 class HebrewTokenizer:
     def __init__(self, token_min_len: int, token_max_len: int, replace_hebrew_suffix: bool):
@@ -75,7 +77,7 @@ def hebrew_tokenizer_no_suffix(content: str, token_min_len: int, token_max_len: 
     )
 
 
-def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, tokenizer_func: Callable = tokenize):
+def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, tokenizer_func: TokenizerFunc = tokenize):
     log.info("Creating wiki corpus")
     article_count = 0
     with open(output_file_path, "w") as corpus_file:
@@ -85,13 +87,3 @@ def generate_wiki_corpus_file(articles_file_path: str, output_file_path: str, to
             corpus_file.write(f"{article}\n")
             article_count += 1
     log.info(f"Finished - Saved {article_count} articles")
-
-
-if __name__ == "__main__":
-    from utils.loader import get_path
-    from utils.logging import configure_logging
-
-    configure_logging()
-    articles = get_path("hebrew", "wiki-he.xml.bz2")
-    out = get_path("corpus-he.txt")
-    generate_wiki_corpus_file(articles_file_path=articles, output_file_path=out, tokenizer_func=hebrew_tokenizer)

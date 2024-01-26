@@ -20,7 +20,7 @@ install-ci: upgrade-pip
 	poetry config virtualenvs.create false
 
 install-run:
-	poetry install --only main
+	poetry install --only main --all-extras
 
 install-test:
 	poetry install --only main --only test --all-extras
@@ -107,7 +107,7 @@ check-mypy:
 	mypy .
 
 check-pylint:
-	pylint generic_iterative_stemmer/ --fail-under=8.5
+	pylint generic_iterative_stemmer/ --fail-under=9.3
 
 lint: format
 	pre-commit run --all-files

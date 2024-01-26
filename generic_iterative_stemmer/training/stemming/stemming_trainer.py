@@ -356,7 +356,7 @@ class StemmingTrainer:
 
 
 def get_iteration_folder(base_folder: str, iteration_number: int) -> str:
-    folder = os.path.join(base_folder, f"iter-{iteration_number}")
+    folder = os.path.join(base_folder, f"iter-{iteration_number:02d}")
     Path(folder).mkdir(parents=True, exist_ok=True)
     return folder
 
