@@ -52,10 +52,10 @@ class IterationProgram:
 
 class StemmingIterationTrainer:
     """
-    Each stemming iteration i is given the corpus-i (that was generated in the i-1 iteration), and:
+    Each stemming iteration i is given corpus_i (that was generated in the i-1 iteration), and:
         * Trains a model based on corpus i (unless a model is given to it).
         * Generates a stem dict for the trained model.
-        * Generates a stemmed corpus for iteration i+1 to base on.
+        * Generates a stemmed corpus (for iteration i+1 to train on).
     """
 
     def __init__(
