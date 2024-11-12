@@ -2,9 +2,22 @@
 
 
 
+## v1.2.0 (2024-11-12)
+
+### Other
+
+* 📝 Docstring fix. ([`2fb434d`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/2fb434d9eb73d1aa0569f423916d44cbefcca775))
+
+### 🔥
+
+* 🔥 Upgrade pydantic v2, update linters ([`9b0ad0f`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/9b0ad0f16f86736d5c5d38e07a3b3d35e4bf87a5))
+
+
 ## v1.1.7 (2024-01-26)
 
 ### Other
+
+* 🤖 Release [1.1.7] [skip ci] ([`6ee4383`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/6ee4383028b6e63e0beaa563a01ce11d62f5de32))
 
 * 🔨 Refactoring. ([`0883a83`](https://github.com/asaf-kali/generic-iterative-stemmer/commit/0883a83097f0885a76a08cc37057691c9a48dd99))
 
