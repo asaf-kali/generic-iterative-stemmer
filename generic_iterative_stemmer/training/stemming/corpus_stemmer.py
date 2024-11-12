@@ -1,5 +1,5 @@
 import logging
-from typing import Set
+from typing import Optional, Set
 
 from pydantic import BaseModel
 from tqdm import tqdm
@@ -25,8 +25,8 @@ class StemCorpusResult(BaseModel):
         self.total_word_count += stem_sentence_result.total_word_count
         self.total_stem_count += stem_sentence_result.total_stem_count
 
-    def dict(self, *args, **kwargs) -> dict:
-        result = super().dict(*args, **kwargs)
+    def model_dump(self, *args, **kwargs) -> dict:
+        result = super().model_dump(*args, **kwargs)
         result["unique_stemming_ratio"] = round(self.unique_stemming_ratio, 3)
         result["total_stemming_ratio"] = round(self.total_stemming_ratio, 3)
         return result
@@ -43,7 +43,7 @@ class StemCorpusResult(BaseModel):
 
 
 def stem_corpus(
-    original_corpus_path: str, output_corpus_path: str, stem_dict: StemDict, allowed_words: Set[str] = None
+    original_corpus_path: str, output_corpus_path: str, stem_dict: StemDict, allowed_words: Optional[Set[str]] = None
 ):
     stemmer = CorpusStemmer(stem_dict=stem_dict, allowed_words=allowed_words)
     return stemmer.stem_corpus(
@@ -53,11 +53,11 @@ def stem_corpus(
 
 
 class CorpusStemmer:
-    def __init__(self, stem_dict: StemDict, allowed_words: Set[str] = None):
+    def __init__(self, stem_dict: StemDict, allowed_words: Optional[Set[str]] = None):
         self.stem_dict = stem_dict
         self.stems = set(stem_dict.values())
         self.result_unique_words: Set[str] = set()
-        self.allowed_words = allowed_words
+        self.allowed_words = allowed_words or set()
 
     def stem_sentence(self, sentence: str) -> StemSentenceResult:
         words = sentence.split()

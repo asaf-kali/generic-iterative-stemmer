@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from gensim.models import FastText
 
@@ -7,7 +8,7 @@ log = logging.getLogger(__name__)
 
 def train(
     corpus_path: str,
-    output_model_path: str = None,
+    output_model_path: Optional[str] = None,
     skip_gram: bool = False,
     vector_size: int = 100,
     window: int = 5,

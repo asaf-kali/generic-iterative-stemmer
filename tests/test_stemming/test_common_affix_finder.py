@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 def test_find_common_affixes(small_stem_dict: StemDict):
     common_affixes_finder = CommonAffixesFinder(stem_dict=small_stem_dict)
     result = common_affixes_finder.find_common_affixes()
-    as_dict = result.dict()
+    as_dict = result.model_dump()
     log.info("Result", extra={"result": as_dict})
     assert as_dict == {
         "prefixes_by_length": {

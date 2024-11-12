@@ -183,7 +183,7 @@ class StemmingIterationTrainer:
     def save_stats(self):
         stats_file = get_stats_path(self.iteration_folder)
         with open(stats_file, "w") as file:
-            stats_dict = self.stats.dict()
+            stats_dict = self.stats.model_dump()
             serialized = json.dumps(stats_dict, indent=2, ensure_ascii=False)
             file.write(serialized)
 
@@ -205,7 +205,7 @@ class StemmingTrainer:
         max_iterations: Optional[int] = 10,
         is_fully_stemmed: bool = False,
         min_change_count: int = 0,
-        training_program: List[IterationProgram] = None,
+        training_program: Optional[List[IterationProgram]] = None,
         default_training_params: Optional[dict] = None,
         default_stem_generator_class: Type[StemGenerator] = DefaultStemGenerator,
         default_stem_generator_params: Optional[dict] = None,

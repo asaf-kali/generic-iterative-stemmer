@@ -90,12 +90,12 @@ semrel-dev:
 # Lint
 
 format:
-	ruff . --fix
 	black .
 	isort .
+	ruff check --fix
 
 check-ruff:
-	ruff .
+	ruff check
 
 check-black:
 	black --check .
@@ -107,7 +107,7 @@ check-mypy:
 	mypy .
 
 check-pylint:
-	pylint generic_iterative_stemmer/ --fail-under=9.3
+	pylint generic_iterative_stemmer/ --fail-under=9.37
 
 lint: format
 	pre-commit run --all-files
